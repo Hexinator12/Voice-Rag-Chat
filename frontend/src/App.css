@@ -245,7 +245,8 @@ main {
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2rem 0 2rem;
+  /* Removed bottom padding for edge-to-edge look */
   position: relative;
   z-index: 1;
 }
