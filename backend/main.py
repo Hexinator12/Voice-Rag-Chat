@@ -68,22 +68,9 @@ class VoiceQueryResponse(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize models on startup"""
-    global rag_engine, voice_processor
-    
-    print("Initializing RAG Engine...")
-    rag_engine = RAGEngine(data_path="data.json")
-    
-    print("Initializing Voice Processor (SpeechRecognition)...")
-    try:
-        voice_processor = VoiceProcessor()
-        print("Voice Processor ready!")
-    except Exception as e:
-        print(f"Warning: Voice Processor failed to initialize: {e}")
-        print("Voice features will be disabled. Text queries will work normally.")
-        voice_processor = None
-    
-    print("Server ready!")
+    """Fast startup - models load on first request"""
+    print("🚀 Server starting (models will load on first request)...")
+    print("✅ Server ready!")
 
 
 @app.get("/")
@@ -113,8 +100,11 @@ async def health_check():
 @app.post("/api/query", response_model=QueryResponse)
 async def text_query(query: TextQuery):
     """Handle text-based queries with conversation memory"""
+    global rag_engine
     if not rag_engine:
-        raise HTTPException(status_code=503, detail="RAG engine not initialized")
+        print("⏳ Initializing RAG Engine...")
+        rag_engine = RAGEngine(data_path="data.json")
+        print("✅ RAG Engine ready!")
     
     try:
         # Use a default session ID (in production, this would come from user authentication)
