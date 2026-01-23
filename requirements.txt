@@ -1,18 +1,22 @@
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
-langchain==0.1.4
-langchain-community==0.0.16
-chromadb==0.4.22
-sentence-transformers==2.3.1
-openai-whisper==20231117
-pyttsx3==2.90
-googletrans==4.0.0rc1
 python-multipart==0.0.6
 pydantic==2.5.3
 pydantic-settings==2.1.0
-numpy==1.26.3
-torch==2.1.2
-torchaudio==2.1.2
-requests==2.31.0
 python-dotenv==1.0.0
+
+# Google AI/ML
+google-generativeai
+google-cloud-texttospeech
+
+# RAG & Embeddings
+sentence-transformers==2.3.1
+faiss-cpu
+numpy==1.26.3
+
+# Speech Recognition (browser-based, no server package needed)
+SpeechRecognition
+
+# Utilities
+requests==2.31.0
 aiofiles==23.2.1
