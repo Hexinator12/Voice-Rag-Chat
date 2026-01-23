@@ -1,0 +1,957 @@
+{
+    "university_info": {
+        "name": "Karnavati University",
+        "established": 2017,
+        "location": "Uvarsad, Gandhinagar, Gujarat, India",
+        "type": "Private University",
+        "accreditation": "UGC Recognized",
+        "motto": "Innovation, Excellence, Leadership",
+        "address": "907/A, Uvarsad, Gandhinagar - 382422, Gujarat",
+        "phone": "+91-2716-615000",
+        "email": "info@karnavatiuniversity.edu.in",
+        "website": "www.karnavatiuniversity.edu.in"
+    },
+    "faculties": [
+        {
+            "id": "DENTAL",
+            "name": "Faculty of Dental Science",
+            "dean": "Dr. Neha Patel",
+            "email": "dental@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615100",
+            "programs": [
+                "BDS",
+                "MDS",
+                "PhD"
+            ],
+            "total_students": 280,
+            "faculty_count": 45,
+            "specializations": [
+                "Orthodontics",
+                "Periodontics",
+                "Oral Surgery",
+                "Prosthodontics",
+                "Endodontics"
+            ]
+        },
+        {
+            "id": "LAW",
+            "name": "Unitedworld School of Law",
+            "dean": "Dr. Rajesh Mehta",
+            "email": "law@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615200",
+            "programs": [
+                "BA LLB",
+                "BBA LLB",
+                "LLM",
+                "PhD"
+            ],
+            "total_students": 520,
+            "faculty_count": 38,
+            "specializations": [
+                "Corporate Law",
+                "Criminal Law",
+                "Constitutional Law",
+                "IPR",
+                "International Law"
+            ]
+        },
+        {
+            "id": "BUSINESS",
+            "name": "Unitedworld School of Business",
+            "dean": "Dr. Amit Shah",
+            "email": "business@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615300",
+            "programs": [
+                "BBA",
+                "MBA",
+                "PhD"
+            ],
+            "total_students": 650,
+            "faculty_count": 42,
+            "specializations": [
+                "Marketing",
+                "Finance",
+                "HR",
+                "Operations",
+                "Business Analytics"
+            ]
+        },
+        {
+            "id": "DESIGN",
+            "name": "Unitedworld Institute of Design",
+            "dean": "Prof. Priya Desai",
+            "email": "design@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615400",
+            "programs": [
+                "B.Des",
+                "M.Des",
+                "Diploma"
+            ],
+            "total_students": 380,
+            "faculty_count": 35,
+            "specializations": [
+                "Fashion Design",
+                "Interior Design",
+                "Graphic Design",
+                "Product Design",
+                "UI/UX Design"
+            ]
+        },
+        {
+            "id": "IT",
+            "name": "School of Computer Science & IT",
+            "dean": "Dr. Vikram Singh",
+            "email": "it@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615500",
+            "programs": [
+                "B.Tech CSE",
+                "B.Tech IT",
+                "M.Tech",
+                "MCA",
+                "PhD"
+            ],
+            "total_students": 720,
+            "faculty_count": 52,
+            "specializations": [
+                "AI & ML",
+                "Data Science",
+                "Cyber Security",
+                "Cloud Computing",
+                "Full Stack Development"
+            ]
+        }
+    ],
+    "courses": [
+        {
+            "code": "DENT101",
+            "name": "General Anatomy",
+            "faculty": "DENTAL",
+            "credits": 5,
+            "year": 1,
+            "semester": 1,
+            "instructor": "Dr. Kavita Sharma",
+            "schedule": "Mon, Wed, Fri 9:00-11:00 AM",
+            "room": "Dental-Block-A-101",
+            "prerequisites": "None",
+            "description": "Study of human body structure including head and neck anatomy essential for dental practice."
+        },
+        {
+            "code": "DENT201",
+            "name": "Oral Pathology",
+            "faculty": "DENTAL",
+            "credits": 4,
+            "year": 2,
+            "semester": 3,
+            "instructor": "Dr. Suresh Kumar",
+            "schedule": "Tue, Thu 10:00-12:00 PM",
+            "room": "Dental-Block-B-203",
+            "prerequisites": "DENT101",
+            "description": "Study of diseases affecting oral and maxillofacial region."
+        },
+        {
+            "code": "DENT301",
+            "name": "Orthodontics and Dentofacial Orthopedics",
+            "faculty": "DENTAL",
+            "credits": 4,
+            "year": 3,
+            "semester": 5,
+            "instructor": "Dr. Neha Patel",
+            "schedule": "Mon, Wed 2:00-4:00 PM",
+            "room": "Dental-Clinic-1",
+            "prerequisites": "DENT201",
+            "description": "Diagnosis and treatment of dental and facial irregularities."
+        },
+        {
+            "code": "LAW101",
+            "name": "Introduction to Legal Systems",
+            "faculty": "LAW",
+            "credits": 4,
+            "year": 1,
+            "semester": 1,
+            "instructor": "Dr. Rajesh Mehta",
+            "schedule": "Mon, Wed, Fri 9:00-10:00 AM",
+            "room": "Law-Building-101",
+            "prerequisites": "None",
+            "description": "Overview of Indian legal system, courts, and basic legal concepts."
+        },
+        {
+            "code": "LAW201",
+            "name": "Constitutional Law",
+            "faculty": "LAW",
+            "credits": 4,
+            "year": 2,
+            "semester": 3,
+            "instructor": "Advocate Meera Joshi",
+            "schedule": "Tue, Thu 11:00-1:00 PM",
+            "room": "Law-Building-203",
+            "prerequisites": "LAW101",
+            "description": "Study of Indian Constitution, fundamental rights, and constitutional amendments."
+        },
+        {
+            "code": "LAW301",
+            "name": "Corporate Law",
+            "faculty": "LAW",
+            "credits": 3,
+            "year": 3,
+            "semester": 5,
+            "instructor": "CA Anil Gupta",
+            "schedule": "Mon, Wed 3:00-4:30 PM",
+            "room": "Law-Building-305",
+            "prerequisites": "LAW201",
+            "description": "Company law, corporate governance, mergers and acquisitions."
+        },
+        {
+            "code": "BUS101",
+            "name": "Principles of Management",
+            "faculty": "BUSINESS",
+            "credits": 3,
+            "year": 1,
+            "semester": 1,
+            "instructor": "Prof. Amit Shah",
+            "schedule": "Tue, Thu 9:00-10:30 AM",
+            "room": "Business-Block-101",
+            "prerequisites": "None",
+            "description": "Fundamentals of management, planning, organizing, and controlling."
+        },
+        {
+            "code": "BUS201",
+            "name": "Financial Management",
+            "faculty": "BUSINESS",
+            "credits": 4,
+            "year": 2,
+            "semester": 3,
+            "instructor": "Dr. Ritu Pandya",
+            "schedule": "Mon, Wed, Fri 11:00-12:00 PM",
+            "room": "Business-Block-205",
+            "prerequisites": "BUS101",
+            "description": "Financial planning, capital budgeting, and financial analysis."
+        },
+        {
+            "code": "BUS301",
+            "name": "Digital Marketing",
+            "faculty": "BUSINESS",
+            "credits": 3,
+            "year": 3,
+            "semester": 5,
+            "instructor": "Prof. Karan Vora",
+            "schedule": "Tue, Thu 2:00-3:30 PM",
+            "room": "Business-Block-Smart-Lab",
+            "prerequisites": "BUS201",
+            "description": "SEO, SEM, social media marketing, and digital marketing strategies."
+        },
+        {
+            "code": "DES101",
+            "name": "Fundamentals of Design",
+            "faculty": "DESIGN",
+            "credits": 4,
+            "year": 1,
+            "semester": 1,
+            "instructor": "Prof. Priya Desai",
+            "schedule": "Mon, Wed, Fri 10:00-12:00 PM",
+            "room": "Design-Studio-1",
+            "prerequisites": "None",
+            "description": "Basic design principles, elements of design, color theory, and composition."
+        },
+        {
+            "code": "DES201",
+            "name": "Fashion Design and Illustration",
+            "faculty": "DESIGN",
+            "credits": 4,
+            "year": 2,
+            "semester": 3,
+            "instructor": "Ms. Anjali Kapoor",
+            "schedule": "Tue, Thu 1:00-3:00 PM",
+            "room": "Fashion-Studio",
+            "prerequisites": "DES101",
+            "description": "Fashion sketching, draping, pattern making, and garment construction."
+        },
+        {
+            "code": "DES301",
+            "name": "UI/UX Design",
+            "faculty": "DESIGN",
+            "credits": 3,
+            "year": 3,
+            "semester": 5,
+            "instructor": "Mr. Rohan Trivedi",
+            "schedule": "Mon, Wed 2:00-4:00 PM",
+            "room": "Design-Computer-Lab",
+            "prerequisites": "DES101",
+            "description": "User interface design, user experience research, prototyping, and usability testing."
+        },
+        {
+            "code": "IT101",
+            "name": "Programming Fundamentals",
+            "faculty": "IT",
+            "credits": 4,
+            "year": 1,
+            "semester": 1,
+            "instructor": "Dr. Vikram Singh",
+            "schedule": "Mon, Wed, Fri 9:00-10:00 AM",
+            "room": "IT-Lab-1",
+            "prerequisites": "None",
+            "description": "Introduction to programming using Python, covering basics of coding and problem solving."
+        },
+        {
+            "code": "IT201",
+            "name": "Data Structures and Algorithms",
+            "faculty": "IT",
+            "credits": 4,
+            "year": 2,
+            "semester": 3,
+            "instructor": "Dr. Sneha Rao",
+            "schedule": "Tue, Thu 10:00-12:00 PM",
+            "room": "IT-Lab-2",
+            "prerequisites": "IT101",
+            "description": "Arrays, linked lists, trees, graphs, sorting and searching algorithms."
+        },
+        {
+            "code": "IT301",
+            "name": "Machine Learning",
+            "faculty": "IT",
+            "credits": 4,
+            "year": 3,
+            "semester": 5,
+            "instructor": "Dr. Arjun Patel",
+            "schedule": "Mon, Wed 11:00-1:00 PM",
+            "room": "AI-Lab",
+            "prerequisites": "IT201",
+            "description": "Supervised and unsupervised learning, neural networks, and ML algorithms."
+        },
+        {
+            "code": "IT302",
+            "name": "Web Development",
+            "faculty": "IT",
+            "credits": 3,
+            "year": 3,
+            "semester": 5,
+            "instructor": "Mr. Jay Shah",
+            "schedule": "Tue, Thu 2:00-4:00 PM",
+            "room": "IT-Lab-3",
+            "prerequisites": "IT101",
+            "description": "HTML, CSS, JavaScript, React, Node.js, and full stack development."
+        }
+    ],
+    "faculty_members": [
+        {
+            "id": "FAC001",
+            "name": "Dr. Neha Patel",
+            "faculty": "DENTAL",
+            "designation": "Dean & Professor",
+            "specialization": "Orthodontics",
+            "email": "neha.patel@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615101",
+            "office": "Dental-Block-Admin-201",
+            "qualification": "BDS, MDS, PhD",
+            "experience_years": 18,
+            "research_interests": [
+                "Invisible Braces",
+                "Dentofacial Orthopedics"
+            ],
+            "office_hours": "Mon, Wed 3:00-5:00 PM"
+        },
+        {
+            "id": "FAC002",
+            "name": "Dr. Rajesh Mehta",
+            "faculty": "LAW",
+            "designation": "Dean & Professor",
+            "specialization": "Constitutional Law",
+            "email": "rajesh.mehta@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615201",
+            "office": "Law-Building-Admin-301",
+            "qualification": "BA LLB, LLM, PhD",
+            "experience_years": 22,
+            "research_interests": [
+                "Human Rights",
+                "Constitutional Amendments"
+            ],
+            "office_hours": "Tue, Thu 2:00-4:00 PM"
+        },
+        {
+            "id": "FAC003",
+            "name": "Dr. Amit Shah",
+            "faculty": "BUSINESS",
+            "designation": "Dean & Professor",
+            "specialization": "Strategic Management",
+            "email": "amit.shah@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615301",
+            "office": "Business-Block-Admin-401",
+            "qualification": "MBA, PhD",
+            "experience_years": 20,
+            "research_interests": [
+                "Business Strategy",
+                "Entrepreneurship"
+            ],
+            "office_hours": "Mon, Fri 11:00 AM-1:00 PM"
+        },
+        {
+            "id": "FAC004",
+            "name": "Prof. Priya Desai",
+            "faculty": "DESIGN",
+            "designation": "Dean & Professor",
+            "specialization": "Product Design",
+            "email": "priya.desai@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615401",
+            "office": "Design-Block-Admin-301",
+            "qualification": "B.Des, M.Des",
+            "experience_years": 15,
+            "research_interests": [
+                "Sustainable Design",
+                "Design Thinking"
+            ],
+            "office_hours": "Wed, Fri 2:00-4:00 PM"
+        },
+        {
+            "id": "FAC005",
+            "name": "Dr. Vikram Singh",
+            "faculty": "IT",
+            "designation": "Dean & Professor",
+            "specialization": "Artificial Intelligence",
+            "email": "vikram.singh@karnavatiuniversity.edu.in",
+            "phone": "+91-2716-615501",
+            "office": "IT-Block-Admin-501",
+            "qualification": "B.Tech, M.Tech, PhD",
+            "experience_years": 16,
+            "research_interests": [
+                "Machine Learning",
+                "Natural Language Processing"
+            ],
+            "office_hours": "Tue, Thu 11:00 AM-1:00 PM"
+        }
+    ],
+    "academic_calendar": [
+        {
+            "event": "Odd Semester Registration",
+            "start_date": "2026-07-01",
+            "end_date": "2026-07-15",
+            "description": "Online course registration for Odd Semester 2026"
+        },
+        {
+            "event": "Odd Semester Classes Begin",
+            "start_date": "2026-07-20",
+            "end_date": "2026-07-20",
+            "description": "First day of classes for Odd Semester 2026"
+        },
+        {
+            "event": "Mid-Semester Exams (Odd)",
+            "start_date": "2026-09-15",
+            "end_date": "2026-09-25",
+            "description": "Mid-semester examination period for Odd Semester"
+        },
+        {
+            "event": "Diwali Break",
+            "start_date": "2026-10-20",
+            "end_date": "2026-11-05",
+            "description": "Diwali vacation period"
+        },
+        {
+            "event": "End-Semester Exams (Odd)",
+            "start_date": "2026-11-25",
+            "end_date": "2026-12-15",
+            "description": "Final examination period for Odd Semester"
+        },
+        {
+            "event": "Winter Break",
+            "start_date": "2026-12-16",
+            "end_date": "2027-01-05",
+            "description": "Winter vacation"
+        },
+        {
+            "event": "Even Semester Registration",
+            "start_date": "2027-01-06",
+            "end_date": "2027-01-15",
+            "description": "Online course registration for Even Semester 2027"
+        },
+        {
+            "event": "Even Semester Classes Begin",
+            "start_date": "2027-01-20",
+            "end_date": "2027-01-20",
+            "description": "First day of classes for Even Semester 2027"
+        }
+    ],
+    "facilities": [
+        {
+            "name": "Central Library",
+            "location": "Ground Floor, Academic Block",
+            "capacity": 500,
+            "timings": "8:00 AM - 10:00 PM (Mon-Sat), 9:00 AM - 6:00 PM (Sun)",
+            "amenities": [
+                "Digital Library",
+                "Reading Rooms",
+                "Conference Hall",
+                "E-Resources"
+            ],
+            "contact": "+91-2716-615600"
+        },
+        {
+            "name": "Dental Hospital & Clinic",
+            "location": "Dental Block",
+            "capacity": 100,
+            "timings": "9:00 AM - 5:00 PM (Mon-Sat)",
+            "amenities": [
+                "50 Dental Chairs",
+                "OPD",
+                "X-Ray",
+                "Emergency Services"
+            ],
+            "contact": "+91-2716-615100"
+        },
+        {
+            "name": "Moot Court Hall",
+            "location": "Law Building, 2nd Floor",
+            "capacity": 150,
+            "timings": "9:00 AM - 6:00 PM",
+            "amenities": [
+                "Court Room Setup",
+                "Audio-Visual Equipment",
+                "Library Access"
+            ],
+            "contact": "+91-2716-615200"
+        },
+        {
+            "name": "Design Studios",
+            "location": "Design Block",
+            "capacity": 200,
+            "timings": "8:00 AM - 8:00 PM",
+            "amenities": [
+                "Fashion Studio",
+                "Photography Studio",
+                "3D Printing Lab",
+                "Workshop"
+            ],
+            "contact": "+91-2716-615400"
+        },
+        {
+            "name": "IT Labs & Innovation Center",
+            "location": "IT Block",
+            "capacity": 300,
+            "timings": "8:00 AM - 9:00 PM",
+            "amenities": [
+                "AI Lab",
+                "Cloud Computing Lab",
+                "Cyber Security Lab",
+                "Startup Incubation"
+            ],
+            "contact": "+91-2716-615500"
+        },
+        {
+            "name": "Sports Complex",
+            "location": "Campus East Wing",
+            "capacity": 1000,
+            "timings": "6:00 AM - 9:00 PM",
+            "amenities": [
+                "Indoor Stadium",
+                "Gym",
+                "Swimming Pool",
+                "Cricket Ground",
+                "Basketball Courts"
+            ],
+            "contact": "+91-2716-615700"
+        },
+        {
+            "name": "Cafeteria & Food Court",
+            "location": "Central Campus",
+            "capacity": 800,
+            "timings": "7:00 AM - 10:00 PM",
+            "amenities": [
+                "Multiple Cuisines",
+                "Coffee Shop",
+                "Juice Bar",
+                "Outdoor Seating"
+            ],
+            "contact": "+91-2716-615800"
+        },
+        {
+            "name": "Hostel (Boys)",
+            "location": "North Campus",
+            "capacity": 600,
+            "timings": "24/7",
+            "amenities": [
+                "AC/Non-AC Rooms",
+                "Mess",
+                "Recreation Room",
+                "Wi-Fi",
+                "24x7 Security"
+            ],
+            "contact": "+91-2716-615901"
+        },
+        {
+            "name": "Hostel (Girls)",
+            "location": "South Campus",
+            "capacity": 500,
+            "timings": "24/7",
+            "amenities": [
+                "AC/Non-AC Rooms",
+                "Mess",
+                "Recreation Room",
+                "Wi-Fi",
+                "24x7 Security"
+            ],
+            "contact": "+91-2716-615902"
+        }
+    ],
+    "faqs": [
+        {
+            "category": "Admissions",
+            "question": "What are the admission requirements for B.Tech in IT?",
+            "answer": "For B.Tech admission, students must have passed 12th standard with Physics, Chemistry, and Mathematics with minimum 50% aggregate. Admission is based on JEE Main score or Gujarat Common Entrance Test (GUJCET) followed by counseling.",
+            "keywords": [
+                "admission",
+                "btech",
+                "it",
+                "requirements",
+                "eligibility"
+            ]
+        },
+        {
+            "category": "Admissions",
+            "question": "How can I apply for BDS program?",
+            "answer": "BDS admissions are conducted through NEET-UG scores. Candidates must qualify NEET and participate in Gujarat state counseling. Minimum qualification is 12th with Physics, Chemistry, Biology with 50% marks (40% for reserved categories).",
+            "keywords": [
+                "bds",
+                "dental",
+                "admission",
+                "neet",
+                "eligibility"
+            ]
+        },
+        {
+            "category": "Admissions",
+            "question": "What is the admission process for BA LLB?",
+            "answer": "BA LLB admissions are based on CLAT (Common Law Admission Test) or university's own entrance exam. Minimum 45% in 12th standard from recognized board is required. Duration is 5 years integrated program.",
+            "keywords": [
+                "law",
+                "ba llb",
+                "clat",
+                "admission",
+                "entrance"
+            ]
+        },
+        {
+            "category": "Admissions",
+            "question": "How do I get admission in Design courses?",
+            "answer": "Design admissions (B.Des) require students to appear for entrance exam consisting of creative aptitude test, situation test, and interview. Portfolio submission is mandatory. Minimum 50% in 12th from any stream.",
+            "keywords": [
+                "design",
+                "b.des",
+                "admission",
+                "portfolio",
+                "entrance"
+            ]
+        },
+        {
+            "category": "Admissions",
+            "question": "What are MBA admission criteria?",
+            "answer": "MBA admissions require valid CAT/MAT/CMAT/GMAT score along with graduation degree with minimum 50% marks. Selection is based on entrance score, group discussion, and personal interview.",
+            "keywords": [
+                "mba",
+                "business",
+                "admission",
+                "cat",
+                "eligibility"
+            ]
+        },
+        {
+            "category": "Fees & Scholarships",
+            "question": "What is the fee structure for IT programs?",
+            "answer": "B.Tech IT annual fee is approximately ₹1,85,000. M.Tech annual fee is ₹1,50,000. Fees can be paid semester-wise or annually. Additional charges for hostel, transportation are separate.",
+            "keywords": [
+                "fees",
+                "it",
+                "btech",
+                "cost",
+                "payment"
+            ]
+        },
+        {
+            "category": "Fees & Scholarships",
+            "question": "Are scholarships available?",
+            "answer": "Yes, Karnavati University offers merit-based scholarships (25% to 100% fee waiver), sports scholarships, need-based financial aid, and special scholarships for economically weaker sections. SC/ST students get government scholarships.",
+            "keywords": [
+                "scholarship",
+                "financial aid",
+                "fee waiver",
+                "merit"
+            ]
+        },
+        {
+            "category": "Fees & Scholarships",
+            "question": "What is the BDS course fee?",
+            "answer": "BDS program fee is approximately ₹3,50,000 per year. This includes academic fees and clinical training. Hostel and mess charges are additional. Installment payment options are available.",
+            "keywords": [
+                "bds",
+                "dental",
+                "fees",
+                "cost"
+            ]
+        },
+        {
+            "category": "Fees & Scholarships",
+            "question": "What are the fees for Law programs?",
+            "answer": "BA LLB 5-year program fee is ₹1,75,000 per year. LLM fee is ₹1,50,000 per year. Library, examination, and other charges are included in the fee structure.",
+            "keywords": [
+                "law",
+                "llb",
+                "llm",
+                "fees",
+                "cost"
+            ]
+        },
+        {
+            "category": "Academic",
+            "question": "What is the attendance requirement?",
+            "answer": "Minimum 75% attendance is mandatory in each course to appear for end-semester examinations. Medical leave requires proper documentation. Shortage may lead to detention from exams.",
+            "keywords": [
+                "attendance",
+                "75%",
+                "requirement",
+                "exam eligibility"
+            ]
+        },
+        {
+            "category": "Academic",
+            "question": "What is the examination pattern?",
+            "answer": "Evaluation includes continuous internal assessment (30%) through assignments, quizzes, mid-semester exam, and end-semester examination (70%). Grading is on 10-point scale (CGPA system).",
+            "keywords": [
+                "exam",
+                "evaluation",
+                "grading",
+                "cgpa",
+                "assessment"
+            ]
+        },
+        {
+            "category": "Academic",
+            "question": "Can I change my specialization?",
+            "answer": "Specialization change is allowed in MBA/M.Tech after first semester, subject to availability of seats and dean's approval. For undergraduate programs, branch change possible after first year based on CGPA criteria (minimum 8.5 CGPA).",
+            "keywords": [
+                "specialization",
+                "branch change",
+                "transfer"
+            ]
+        },
+        {
+            "category": "Academic",
+            "question": "Are there exchange programs?",
+            "answer": "Yes, Karnavati University has student exchange programs with universities in USA, UK, Germany, and Australia. Duration is typically one semester. Students can apply after completing 2 years with minimum 7.0 CGPA.",
+            "keywords": [
+                "exchange",
+                "international",
+                "abroad",
+                "study"
+            ]
+        },
+        {
+            "category": "Academic",
+            "question": "What programming languages are taught in IT?",
+            "answer": "IT curriculum covers Python, Java, C++, JavaScript, SQL, and emerging technologies like React, Node.js, Machine Learning frameworks. Courses also include Data Structures, Algorithms, AI, Cloud Computing, and Cyber Security.",
+            "keywords": [
+                "programming",
+                "languages",
+                "it",
+                "curriculum",
+                "subjects"
+            ]
+        },
+        {
+            "category": "Campus Life",
+            "question": "What hostel facilities are available?",
+            "answer": "Separate hostels for boys and girls with AC and non-AC options. Facilities include mess (veg/non-veg), Wi-Fi, laundry, recreation room, gym, 24x7 security, medical room. Hostel fee ranges from ₹80,000 to ₹1,20,000 per year.",
+            "keywords": [
+                "hostel",
+                "accommodation",
+                "rooms",
+                "facilities"
+            ]
+        },
+        {
+            "category": "Campus Life",
+            "question": "What sports facilities are available?",
+            "answer": "Campus has cricket ground, football field, basketball courts, tennis courts, indoor badminton, table tennis, gym, yoga center, and swimming pool. Annual sports fest and inter-college tournaments are organized.",
+            "keywords": [
+                "sports",
+                "facilities",
+                "gym",
+                "games"
+            ]
+        },
+        {
+            "category": "Campus Life",
+            "question": "Are there student clubs?",
+            "answer": "Yes, various clubs including Coding Club, Entrepreneurship Cell, Moot Court Society, Fashion Club, Cultural Society, Music Club, Photography Club, Social Service Club, and Sports Committee. Regular events and competitions are conducted.",
+            "keywords": [
+                "clubs",
+                "activities",
+                "cultural",
+                "events"
+            ]
+        },
+        {
+            "category": "Campus Life",
+            "question": "What is the library timing?",
+            "answer": "Central Library is open 8:00 AM to 10:00 PM on weekdays, 8:00 AM to 8:00 PM on Saturdays, and 9:00 AM to 6:00 PM on Sundays. During exams, extended hours till 11:00 PM. Access to digital resources 24x7.",
+            "keywords": [
+                "library",
+                "timing",
+                "hours",
+                "books"
+            ]
+        },
+        {
+            "category": "Placement",
+            "question": "What is the placement record?",
+            "answer": "Average placement rate is 85%+. Top recruiters include TCS, Infosys, Wipro, Deloitte, Amazon, HDFC Bank, ICICI, Johnson & Johnson, Ogilvy, Saatchi & Saatchi. Average package for IT: ₹5.5 LPA, Business: ₹4.8 LPA, Design: ₹4.2 LPA.",
+            "keywords": [
+                "placement",
+                "jobs",
+                "companies",
+                "package",
+                "salary"
+            ]
+        },
+        {
+            "category": "Placement",
+            "question": "When does campus recruitment start?",
+            "answer": "Pre-placement talks begin from July for final year students. Main placement season is August to March. Summer internships are facilitated in 3rd year. Career Development Cell provides training, mock interviews, and resume building workshops.",
+            "keywords": [
+                "recruitment",
+                "campus",
+                "placement season",
+                "internship"
+            ]
+        },
+        {
+            "category": "Placement",
+            "question": "What companies visit for Dental placements?",
+            "answer": "Major dental hospitals, clinics like Apollo White, Clove Dental, Sabka Dentist recruit students. Many opt for government services through state exams. Average package ₹3-5 LPA. University also has own 100-bed dental hospital for practice.",
+            "keywords": [
+                "dental",
+                "placement",
+                "hospitals",
+                "jobs"
+            ]
+        },
+        {
+            "category": "Placement",
+            "question": "Do Law students get placed?",
+            "answer": "Law firms, corporate legal departments, judiciary services, legal consultancies recruit. Top firms include Khaitan & Co, Luthra & Luthra, AZB Partners. Many clear judicial services. Average package ₹4-7 LPA. Moot court training enhances employability.",
+            "keywords": [
+                "law",
+                "placement",
+                "firms",
+                "legal jobs"
+            ]
+        },
+        {
+            "category": "Infrastructure",
+            "question": "Is Wi-Fi available on campus?",
+            "answer": "Yes, high-speed Wi-Fi is available across campus including classrooms, library, labs, hostel, and common areas. Students get individual login credentials. Speed: 100 Mbps. No additional charges.",
+            "keywords": [
+                "wifi",
+                "internet",
+                "connectivity",
+                "network"
+            ]
+        },
+        {
+            "category": "Infrastructure",
+            "question": "What labs are available for IT students?",
+            "answer": "Dedicated labs for AI & Machine Learning, Cloud Computing, Cyber Security, Data Science, Software Development, Computer Networks, and IoT. Total 8 labs with 300+ computers, latest software, and high-end servers.",
+            "keywords": [
+                "labs",
+                "it",
+                "computer",
+                "facilities"
+            ]
+        },
+        {
+            "category": "Infrastructure",
+            "question": "Does the Design faculty have specialized studios?",
+            "answer": "Yes, dedicated Fashion Design studio with sewing machines, draping tools; Photography studio with professional lighting; 3D printing lab; Digital design lab with Adobe Creative Suite, CAD software; Workshop for product design prototyping.",
+            "keywords": [
+                "design",
+                "studio",
+                "fashion",
+                "lab"
+            ]
+        },
+        {
+            "category": "Infrastructure",
+            "question": "What medical facilities are on campus?",
+            "answer": "100-bed Dental Hospital with modern equipment, emergency services. Medical room in hostel with nurse on duty 24x7. Tie-up with nearby multi-specialty hospitals. Ambulance facility available. Annual health checkup for all students.",
+            "keywords": [
+                "medical",
+                "health",
+                "hospital",
+                "emergency"
+            ]
+        },
+        {
+            "category": "Location & Transport",
+            "question": "How far is Karnavati University from Gandhinagar city?",
+            "answer": "Campus is located in Uvarsad, approximately 15 km from Gandhinagar city center and 25 km from Ahmedabad. Well connected by road. University provides bus service from major points in Gandhinagar and Ahmedabad.",
+            "keywords": [
+                "location",
+                "distance",
+                "gandhinagar",
+                "uvarsad"
+            ]
+        },
+        {
+            "category": "Location & Transport",
+            "question": "Is transport facility provided?",
+            "answer": "Yes, university operates AC and non-AC buses from Ahmedabad, Gandhinagar, Kalol, and nearby areas. Bus routes cover major residential areas. Annual transport fee ranges from ₹25,000 to ₹40,000 depending on distance.",
+            "keywords": [
+                "transport",
+                "bus",
+                "vehicle",
+                "commute"
+            ]
+        },
+        {
+            "category": "Location & Transport",
+            "question": "Nearest airport and railway station?",
+            "answer": "Nearest airport: Sardar Vallabhbhai Patel International Airport, Ahmedabad (35 km, 45 minutes). Nearest railway stations: Gandhinagar Capital (12 km), Ahmedabad Junction (30 km). University provides pickup service during admission time.",
+            "keywords": [
+                "airport",
+                "railway",
+                "station",
+                "connectivity"
+            ]
+        },
+        {
+            "category": "General",
+            "question": "What languages are supported for communication?",
+            "answer": "Official communication is in English. Faculty and staff also speak Hindi, Gujarati. All signages are in English, Hindi, and Gujarati. Language support courses available for non-native speakers.",
+            "keywords": [
+                "language",
+                "gujarati",
+                "hindi",
+                "english",
+                "communication"
+            ]
+        },
+        {
+            "category": "General",
+            "question": "How can I contact the admission office?",
+            "answer": "Admission Office: Phone: +91-2716-615000, Email: admissions@karnavatiuniversity.edu.in. Office hours: 9:00 AM - 6:00 PM (Mon-Sat). You can also visit campus or schedule online counseling session through website.",
+            "keywords": [
+                "contact",
+                "admission",
+                "phone",
+                "email",
+                "office"
+            ]
+        },
+        {
+            "category": "General",
+            "question": "Is ragging prohibited?",
+            "answer": "Ragging is strictly prohibited and a punishable offense. University has anti-ragging committee, helpline, and counselors. Any incident can be reported to authorities or UGC anti-ragging helpline: 1800-180-5522. Strict action taken against culprits.",
+            "keywords": [
+                "ragging",
+                "safety",
+                "security",
+                "prohibited"
+            ]
+        }
+    ]
+}
