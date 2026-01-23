@@ -1,11 +1,41 @@
 import axios from 'axios';
 
 // Use environment variable for API URL, fallback to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Use environment variable for API URL, fallback to localhost
+// Remove trailing slash if present to avoid double slashes
+const getApiUrl = () => {
+    let url = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    if (url.endsWith('/')) {
+        url = url.slice(0, -1);
+    }
+    console.log('🔗 API Base URL:', url); // Debug log
+    return url;
+};
 
-export interface TextQueryRequest {
-    question: string;
-    language?: string;
+const API_BASE_URL = getApiUrl();
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 30000, // 30 second timeout
+});
+
+// Add response interceptor for better error diagnosis
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('❌ API Error:', {
+            url: error.config?.url,
+            status: error.response?.status,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
+question: string;
+language ?: string;
 }
 
 export interface QueryResponse {

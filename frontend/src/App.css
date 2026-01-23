@@ -856,24 +856,27 @@ footer {
 
 /* Clear Chat Button */
 .clear-chat-btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0 1rem;
+  height: 36px;
   background: rgba(255, 68, 68, 0.1);
   border: 1px solid rgba(255, 68, 68, 0.3);
   border-radius: 12px;
   color: #ff6b6b;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .clear-chat-btn:hover {
   background: rgba(255, 68, 68, 0.2);
   border-color: rgba(255, 68, 68, 0.5);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.2);
 }
 
 .clear-chat-btn:active {
