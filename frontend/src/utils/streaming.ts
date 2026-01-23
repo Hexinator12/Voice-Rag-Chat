@@ -9,7 +9,7 @@ class TextStreamer {
     private words: string[];
     private currentIndex: number = 0;
     private currentSentence: string[] = [];
-    private intervalId: NodeJS.Timeout | null = null;
+    private intervalId: any = null;
 
     constructor(text: string, options: {
         onWord: (word: string, fullText: string) => void;
