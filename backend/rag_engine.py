@@ -58,6 +58,20 @@ class RAGEngine:
         self.ollama_url = ollama_url
         self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
         
+        # Initialize Gemini
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key:
+            try:
+                genai.configure(api_key=api_key)
+                self.gemini_model = "configured"
+                print("✅ Gemini API configured")
+            except Exception as e:
+                print(f"❌ Gemini configuration failed: {e}")
+                self.gemini_model = None
+        else:
+            print("⚠️ GEMINI_API_KEY not found. LLM features will be disabled.")
+            self.gemini_model = None
+        
         # FAISS index
         self.index = None
         self.documents = []
