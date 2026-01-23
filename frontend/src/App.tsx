@@ -254,20 +254,11 @@ function App() {
                 <header>
                     <div className="header-content">
                         <div className="logo-section">
-                            {/* Mobile Sidebar Toggle - Visible only on mobile */}
+                            {/* Mobile Sidebar Toggle - Visible only on mobile via CSS */}
                             <button
                                 className="mobile-menu-btn"
                                 onClick={() => setSidebarOpen(true)}
                                 aria-label="Open menu"
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--text-primary)',
-                                    fontSize: '1.5rem',
-                                    cursor: 'pointer',
-                                    paddingRight: '0.5rem',
-                                    display: window.innerWidth <= 768 ? 'block' : 'none'
-                                }}
                             >
                                 ☰
                             </button>
