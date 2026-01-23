@@ -1,27 +1,19 @@
 /* Conversation Sidebar Styles */
 
 .sidebar-toggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1001;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
     display: none;
-    /* Hidden on desktop */
+    /* Hidden by default, controlled in App.tsx now */
 }
 
-.sidebar-toggle:hover {
-    background: var(--primary-gradient);
-    transform: scale(1.05);
+/* Close button inside sidebar for mobile */
+.sidebar-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
 }
 
 .conversation-sidebar {
@@ -29,14 +21,16 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 280px;
+    width: var(--sidebar-width);
     background: rgba(15, 15, 35, 0.95);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-right: 1px solid var(--card-border);
     display: flex;
     flex-direction: column;
     z-index: 1000;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-lg);
 }
 
 .conversation-sidebar.closed {
@@ -47,6 +41,32 @@
 .sidebar-header {
     padding: 1.5rem;
     border-bottom: 1px solid var(--card-border);
+}
+
+/* Responsive sidebar header to hold close button */
+@media (max-width: 768px) {
+    .sidebar-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .sidebar-header h2 {
+        margin-bottom: 0;
+        grid-column: 1;
+    }
+
+    .sidebar-close-btn {
+        display: block;
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .new-chat-btn {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+    }
 }
 
 .sidebar-header h2 {

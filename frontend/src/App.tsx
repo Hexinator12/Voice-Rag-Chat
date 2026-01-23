@@ -16,7 +16,22 @@ function App() {
     const [languages, setLanguages] = useState<Language[]>([]);
     const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    // Sidebar open by default on desktop, closed on mobile
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
+
+    // Handle window resize
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) {
+                setSidebarOpen(true);
+            } else {
+                setSidebarOpen(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Conversation management
     const {
@@ -239,6 +254,23 @@ function App() {
                 <header>
                     <div className="header-content">
                         <div className="logo-section">
+                            {/* Mobile Sidebar Toggle - Visible only on mobile */}
+                            <button
+                                className="mobile-menu-btn"
+                                onClick={() => setSidebarOpen(true)}
+                                aria-label="Open menu"
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--text-primary)',
+                                    fontSize: '1.5rem',
+                                    cursor: 'pointer',
+                                    paddingRight: '0.5rem',
+                                    display: window.innerWidth <= 768 ? 'block' : 'none'
+                                }}
+                            >
+                                ☰
+                            </button>
                             <div className="logo">🎓</div>
                             <div className="title-section">
                                 <h1>Voice RAG</h1>
