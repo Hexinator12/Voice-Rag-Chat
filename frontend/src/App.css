@@ -447,7 +447,7 @@ footer {
 
 .footer-content {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   /* Constrain width for elegance */
   pointer-events: auto;
   display: flex;
@@ -887,7 +887,22 @@ footer {
 .app {
   display: flex;
   height: 100vh;
+  min-height: -webkit-fill-available;
+  /* Fix for mobile Safari */
   overflow: hidden;
+}
+
+/* ... headers ... */
+
+.app-content {
+  margin-left: var(--sidebar-width);
+  width: calc(100vw - var(--sidebar-width));
+  height: 100vh;
+  height: 100dvh;
+  /* Dynamic viewport height for modern browsers */
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app>header,
