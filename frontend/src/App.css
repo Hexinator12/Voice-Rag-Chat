@@ -246,7 +246,7 @@ main {
   width: 100%;
   margin: 0 auto;
   padding: 2rem 2rem 0 2rem;
-  /* Removed bottom padding for edge-to-edge look */
+  /* Removed bottom padding completely */
   position: relative;
   z-index: 1;
 }
@@ -258,12 +258,15 @@ main {
   border: 1px solid var(--card-border);
   border-radius: 24px;
   padding: 2rem;
-  margin-bottom: 0.5rem;
-  /* Reduced from 2rem to pull nicely above footer */
+  margin-bottom: 0;
+  /* No margin at bottom to touch footer */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: none;
   box-shadow: var(--shadow-lg);
   overflow-y: auto;
   min-height: 500px;
-  max-height: calc(100vh - 400px);
+  /* Let flex grow fill the remaining space */
 }
 
 /* Custom Scrollbar */
