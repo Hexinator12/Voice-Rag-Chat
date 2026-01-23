@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 // Use environment variable for API URL, fallback to localhost
-// Use environment variable for API URL, fallback to localhost
 // Remove trailing slash if present to avoid double slashes
 const getApiUrl = () => {
     let url = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -14,28 +13,9 @@ const getApiUrl = () => {
 
 const API_BASE_URL = getApiUrl();
 
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    timeout: 30000, // 30 second timeout
-});
-
-// Add response interceptor for better error diagnosis
-api.interceptors.response.use(
-    response => response,
-    error => {
-        console.error('❌ API Error:', {
-            url: error.config?.url,
-            status: error.response?.status,
-            message: error.message
-        });
-        return Promise.reject(error);
-    }
-);
-question: string;
-language ?: string;
+export interface TextQueryRequest {
+    question: string;
+    language?: string;
 }
 
 export interface QueryResponse {
@@ -71,7 +51,21 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 30000, // 30 second timeout
 });
+
+// Add response interceptor for better error diagnosis
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('❌ API Error:', {
+            url: error.config?.url,
+            status: error.response?.status,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
 
 export const apiService = {
     async textQuery(question: string, language: string = 'English'): Promise<QueryResponse> {
