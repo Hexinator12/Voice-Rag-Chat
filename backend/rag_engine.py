@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import numpy as np
 import faiss
-# from sentence_transformers import SentenceTransformer # Removed for memory optimization
+from sentence_transformers import SentenceTransformer
 import requests
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -56,7 +56,7 @@ class RAGEngine:
     def __init__(self, data_path: str = "data.json", ollama_url: str = "http://localhost:11434"):
         self.data_path = data_path
         self.ollama_url = ollama_url
-        # self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2') # Removed
+        self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
         
         # Initialize Gemini
         api_key = os.getenv("GEMINI_API_KEY")
@@ -88,7 +88,7 @@ class RAGEngine:
         print("Initializing database with university data...")
         
         # Check if we have cached embeddings
-        cache_file = "faiss_index_gemini.pkl"
+        cache_file = "faiss_index.pkl"
         if os.path.exists(cache_file):
             print("Loading cached embeddings...")
             with open(cache_file, 'rb') as f:
@@ -153,40 +153,11 @@ class RAGEngine:
             documents.append(doc)
             metadatas.append({"type": "calendar", "category": "academic"})
         
-        print(f"Creating embeddings for {len(documents)} documents using Gemini API...")
+        print(f"Creating embeddings for {len(documents)} documents...")
         
-        # Create embeddings using Gemini API (batching to be safe)
-        embeddings = []
-        batch_size = 50
-        for i in range(0, len(documents), batch_size):
-            batch = documents[i:i+batch_size]
-            try:
-                # Use text-embedding-004
-                result = genai.embed_content(
-                    model="models/text-embedding-004",
-                    content=batch,
-                    task_type="retrieval_document",
-                    title="University Data"
-                )
-                # Handle different response formats (single vs batch)
-                if 'embedding' in result:
-                     # For single string, result['embedding'] is the list
-                     # For list of strings, result['embedding'] is list of list? 
-                     # Actually genai.embed_content for list returns dict with 'embedding' as list of lists
-                     batch_embeddings = result['embedding']
-                     embeddings.extend(batch_embeddings)
-            except Exception as e:
-                print(f"Error embedding batch {i}: {e}")
-                # Fallback to zero vectors or skip? Better to fail loudly or handle gracefully
-                # For now, append zeros to keep index aligned? No, that breaks search.
-                # Just continue and hope for best? usage of this script assumes valid key.
-                pass
-
+        # Create embeddings
+        embeddings = self.embedding_model.encode(documents, show_progress_bar=True)
         embeddings = np.array(embeddings).astype('float32')
-        
-        if len(embeddings) == 0:
-             print("❌ Failed to generate embeddings. Check API Key.")
-             return
         
         # Create FAISS index
         dimension = embeddings.shape[1]
@@ -209,17 +180,9 @@ class RAGEngine:
     
     def search(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
         """Search for relevant documents"""
-        # Create query embedding using Gemini API
-        try:
-            result = genai.embed_content(
-                model="models/text-embedding-004",
-                content=query,
-                task_type="retrieval_query"
-            )
-            query_embedding = np.array([result['embedding']]).astype('float32')
-        except Exception as e:
-            print(f"Error embedding query: {e}")
-            return []
+        # Create query embedding
+        query_embedding = self.embedding_model.encode([query])
+        query_embedding = np.array(query_embedding).astype('float32')
         
         # Search
         distances, indices = self.index.search(query_embedding, n_results)
