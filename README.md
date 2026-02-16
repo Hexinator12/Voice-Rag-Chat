@@ -19,26 +19,28 @@
 ## ✨ Features
 
 ### 🌍 **Multilingual Support**
+
 - 🇬🇧 **English** - Natural, fluent responses
 - 🇮🇳 **Hindi (हिंदी)** - Native language support
-- 🇮🇳 **Tamil (தமிழ்)** - Perfect grammar and flow
-- 🇮🇳 **Telugu (తెలుగు)** - Natural conversation
-- 🇮🇳 **Marathi (मराठी)** - Professional tone
 
 ### 🤖 **AI-Powered Intelligence**
+
 - ⚡ **Google Gemini 1.5 Flash** - Latest AI technology
 - 🎯 **RAG Architecture** - Retrieval-Augmented Generation
-- 📚 **FAISS Vector Search** - Fast semantic search
+- ☁️ **Qdrant Cloud** - Cloud-hosted vector database
+- 🔍 **Gemini Embeddings** - 768-dimensional semantic search
 - 🔒 **Strict Data Mode** - Only uses provided university data
 - 💬 **Context-Aware** - Remembers conversation history
 
 ### 🎙️ **Voice Interaction**
+
 - 🎤 **Voice Input** - Speech recognition in all 5 languages
 - 🔊 **Natural Voice Output** - Google Cloud Text-to-Speech
 - 🎵 **Premium Voices** - Studio & Wavenet quality
 - 🔄 **Real-time Streaming** - Word-by-word text display
 
 ### 💎 **User Experience**
+
 - 🎨 **Modern UI** - Beautiful, responsive design
 - 🌙 **Dark Mode** - Easy on the eyes
 - 💬 **Conversation History** - Save and resume chats
@@ -71,7 +73,7 @@
 ┌────────────────────┴────────────────────────────────────┐
 │              Backend (FastAPI + Python)                  │
 │  ┌──────────────────────────────────────────────────┐  │
-│  │  RAG Engine (FAISS + Sentence Transformers)      │  │
+│  │  RAG Engine (Qdrant Cloud + Gemini Embeddings)  │  │
 │  └──────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │  Google Gemini 1.5 Flash (Response Generation)   │  │
@@ -88,10 +90,10 @@
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.11 (recommended)
 - Node.js 16+
-- Google Gemini API Key
-- Google Cloud TTS credentials
+- Google Gemini API Key (optional — used for response generation)
+- Google Cloud TTS credentials (optional — for server-side TTS)
 
 ### Installation
 
@@ -112,30 +114,51 @@ cd ..
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env and add your API keys
+# Edit `.env` and add your API keys. Do NOT commit `.env` to Git.
+
+Important: do not add `models/`, `venv/`, `uploads/` or `.env` to the repo. They are large or contain secrets.
 ```
 
 ### Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (example keys shown):
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 GOOGLE_APPLICATION_CREDENTIALS=path/to/google-cloud-key.json
+
+# Qdrant Cloud Configuration
+QDRANT_URL=https://<your-cluster>.us-east-1-1.aws.cloud.qdrant.io
+QDRANT_API_KEY=your_qdrant_api_key
+QDRANT_COLLECTION_NAME=uit_rag
 ```
 
 ### Running Locally
 
-```bash
-# Start both backend and frontend
+````bash
+# Start both backend and frontend (helper script uses `python3` internally)
 ./start_gemini.sh
 
-# Or start separately:
-# Backend: uvicorn backend.main:app --reload
-# Frontend: cd frontend && npm run dev
-```
+# Alternative: start separately
+```bash
+# Backend (dev):
+source venv/bin/activate
+uvicorn backend.main:app --reload
 
-Access the application at `http://localhost:5173`
+# Frontend (dev):
+cd frontend
+npm run dev
+````
+
+````
+
+Access the application at `http://localhost:5173` (frontend) and API at `http://localhost:8000`.
+
+Quick health check:
+
+```bash
+curl http://localhost:8000/api/health
+````
 
 ---
 
@@ -143,7 +166,7 @@ Access the application at `http://localhost:5173`
 
 ### Basic Conversation
 
-1. **Select Language** - Choose from 5 supported languages
+1. **Select Language** - Choose from 2 supported languages (English, Hindi)
 2. **Ask Questions** - Type or use voice input
 3. **Get Answers** - Receive accurate, data-backed responses
 4. **Switch Languages** - Change language anytime mid-conversation
@@ -159,30 +182,30 @@ Access the application at `http://localhost:5173`
 ```
 English: "What are the hostel facilities?"
 Hindi: "प्रवेश की प्रक्रिया क्या है?"
-Tamil: "படிப்புகள் என்ன உள்ளன?"
-Telugu: "ఫీజు ఎంత?"
-Marathi: "संपर्क माहिती काय आहे?"
 ```
 
 ---
 
 ## 🛠️ Technology Stack
 
-### Backend
+# Backend
+
 - **FastAPI** - Modern Python web framework
-- **Google Gemini 1.5 Flash** - AI response generation
-- **Google Cloud TTS** - Natural voice synthesis
-- **FAISS** - Vector similarity search
-- **Sentence Transformers** - Text embeddings
-- **Python 3.9+** - Core language
+- **Google Gemini (via google-generativeai)** - AI response generation (optional)
+- **Qdrant Cloud** - Cloud-hosted vector database
+- **sentence-transformers** - `all-mpnet-base-v2` embeddings (768D)
+- **Google Cloud TTS** - Natural voice synthesis (optional)
+- **Python 3.11** - Recommended runtime
 
 ### Frontend
+
 - **React 18** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool
 - **CSS3** - Modern styling
 
 ### AI/ML
+
 - **RAG Architecture** - Retrieval-Augmented Generation
 - **Vector Search** - Semantic similarity
 - **Multilingual NLP** - 5 language support
@@ -205,7 +228,8 @@ Voice-RAG/
 │   │   ├── services/        # API services
 │   │   └── utils/           # Utilities
 │   └── package.json
-├── data.json                # University data
+├── rag_chunks_optimized_ss.json  # Chunked university RAG data used for Qdrant
+├── data.json                # (optional) original university data
 ├── requirements.txt         # Python dependencies
 ├── start_gemini.sh         # Startup script
 └── README.md               # This file
@@ -218,29 +242,49 @@ Voice-RAG/
 ### Free Hosting Options
 
 **Render.com (Recommended)**
+
 - Free tier: 750 hours/month
 - Automatic HTTPS
 - Easy GitHub integration
 
 **Railway.app**
+
 - $5 credit/month
 - No sleep time
 - Fast deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
+### Important notes (repo & CI)
+
+- `.env` contains secrets — keep it out of Git.
+- `models/` may contain large or proprietary weights — use external storage or Git LFS if needed.
+- When pushing the project and overwriting a remote repo, exclude `models/`, `venv/`, `uploads/`, and `.env`.
+
+If you need to populate Qdrant from the packaged chunks, run:
+
+```bash
+source venv/bin/activate
+python3 upload_to_qdrant.py
+```
+
+This script uses `rag_chunks_optimized_ss.json` to create embeddings and upload vectors to your configured Qdrant collection. Adjust `BATCH_SIZE` and timeouts in the script if needed.
+
 ---
 
 ## 🎨 Screenshots
 
 ### Main Interface
-*Beautiful, modern UI with voice controls*
+
+_Beautiful, modern UI with voice controls_
 
 ### Multilingual Support
-*Seamless language switching*
+
+_Seamless language switching_
 
 ### Voice Interaction
-*Natural voice input and output*
+
+_Natural voice input and output_
 
 ---
 
@@ -283,6 +327,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Meet Patel**
+
 - GitHub: [@Hexinator12](https://github.com/Hexinator12)
 - Project: [Voice RAG](https://github.com/Hexinator12/Voice-RAG)
 

@@ -76,16 +76,14 @@ function App() {
 
     useEffect(() => {
         loadLanguages();
-        checkBackendHealth();
+        checkBackendHealth(); // Initial visible check
 
         const interval = setInterval(() => {
-            if (backendStatus === 'offline') {
-                checkBackendHealth();
-            }
+            checkBackendHealth(true); // Silent poll
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [backendStatus]);
+    }, []);
 
     const loadLanguages = async () => {
         try {
@@ -100,9 +98,9 @@ function App() {
         }
     };
 
-    const checkBackendHealth = async () => {
+    const checkBackendHealth = async (silent = false) => {
         try {
-            setBackendStatus('checking');
+            if (!silent) setBackendStatus('checking');
             const health = await apiService.healthCheck();
             if (health.status === 'healthy') {
                 setBackendStatus('online');
@@ -110,7 +108,8 @@ function App() {
                 setBackendStatus('offline');
             }
         } catch (error) {
-            console.error('Backend health check failed:', error);
+            // Only log errors on initial check to avoid console spam
+            if (!silent) console.error('Backend health check failed:', error);
             setBackendStatus('offline');
         }
     };
@@ -196,10 +195,7 @@ function App() {
             // Set up TTS queue
             const ttsLanguageMap: { [key: string]: string } = {
                 'English': 'en-US',
-                'Hindi': 'hi-IN',
-                'Marathi': 'mr-IN',
-                'Tamil': 'ta-IN',
-                'Telugu': 'te-IN'
+                'Hindi': 'hi-IN'
             };
             const ttsLanguage = ttsLanguageMap[selectedLanguage] || 'en-US';
             const ttsQueue = new TTSQueue(ttsLanguage);
@@ -263,10 +259,7 @@ function App() {
                                 ☰
                             </button>
                             <div className="logo">🎓</div>
-                            <div className="title-section">
-                                <h1>Voice RAG</h1>
-                                <p className="subtitle">AI-Powered Intelligent Information Assistant</p>
-                            </div>
+                            <h2>Voice RAG</h2>
                         </div>
 
                         <div className="header-controls">
