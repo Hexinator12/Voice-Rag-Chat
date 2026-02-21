@@ -69,17 +69,26 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
 
             recognition.onerror = (event: any) => {
                 console.error('❌ Speech recognition error:', event.error);
-                setIsListening(false);
 
                 if (event.error === 'network') {
-                    alert('⚠️ Voice requires internet connection. Please connect to WiFi and try again.');
+                    // Network errors are often false positives - just log and continue
+                    console.warn('Network error in speech recognition - this is usually a transient browser issue');
+                    // Don't stop listening, recognition will continue automatically
                 } else if (event.error === 'no-speech') {
                     // Ignore no-speech error for UX, just stop
+                    console.log('No speech detected - timeout');
+                    setIsListening(false);
                 } else if (event.error === 'not-allowed') {
-                    alert('Microphone access denied. Please allow microphone access.');
+                    setIsListening(false);
+                    alert('Microphone access denied. Please allow microphone access in your browser settings.');
                 } else if (event.error === 'aborted') {
-                    // Ignore aborted
+                    // Ignore aborted - user action
+                    setIsListening(false);
+                } else if (event.error === 'audio-capture') {
+                    setIsListening(false);
+                    alert('No microphone detected. Please check your microphone connection.');
                 } else {
+                    setIsListening(false);
                     console.warn(`Speech recognition error: ${event.error}`);
                 }
             };
@@ -147,7 +156,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
                     onClick={startListening}
                     disabled={isProcessing}
                     className="mic-button"
-                    title="Click to speak (requires internet)"
+                    title="Click to speak"
                 >
                     🎤
                 </button>

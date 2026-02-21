@@ -489,22 +489,8 @@ Make it conversational and engaging!
         print("-"*80)
         print(f"📄 Building context from {len(context_docs)} retrieved documents...")
         
-        # SMART FILTERING: For "who teaches X" queries, prioritize faculty_subject entries
-        query_lower = query.lower()
-        is_who_teaches_query = any(keyword in query_lower for keyword in ['who teaches', 'which professor', 'teaches', 'teacher of'])
-        
-        if is_who_teaches_query and len(context_docs) > 0:
-            # Check if first document is a faculty_subject entry
-            first_doc = context_docs[0]
-            if 'category' in first_doc.get('metadata', {}) and first_doc['metadata']['category'] == 'faculty_subject':
-                # Use ONLY the first document for "who teaches" queries
-                print(f"🎯 Detected 'who teaches' query - using only the most specific document")
-                context = first_doc['content']
-                context_docs = [first_doc]  # Keep only first
-            else:
-                context = "\n\n".join([doc['content'] for doc in context_docs])
-        else:
-            context = "\n\n".join([doc['content'] for doc in context_docs])
+        # Use all retrieved documents for comprehensive answers
+        context = "\n\n".join([doc['content'] for doc in context_docs])
         
         # Show retrieved documents
         for i, doc in enumerate(context_docs, 1):
@@ -537,22 +523,26 @@ Make it conversational and engaging!
         
         lang_instruction = language_instructions.get(language, "Answer in English")
         
-        # Create EXTREMELY STRICT prompt - ONLY use university data
-        prompt = f"""You are Karnavati University's AI assistant.
+        # Create prompt for natural, conversational answers
+        prompt = f"""You are a friendly student assistant at UIT (Unitedworld Institute of Technology) - the engineering college at Karnavati University.
 
-CRITICAL RULES:
+IMPORTANT: UIT is ONLY for engineering programs. If someone asks about law, management, design, or other non-engineering departments, politely tell them this bot is specifically for UIT engineering students and they should contact the main university office for other programs.
+
+RULES:
 1. LANGUAGE: {lang_instruction}
-2. Answer in EXACTLY ONE SENTENCE - no more
-3. Use ONLY the information provided in Context below - do not expand or add details
-4. For "Who teaches X?" questions: Read the first line of Context and answer from that ONLY
-5. Do NOT list multiple subjects unless the question asks for them
+2. Talk naturally like a human, not like Wikipedia or a formal document
+3. Give only the KEY POINTS the person needs to know
+4. Keep it brief and conversational - 2-4 sentences maximum
+5. Use the information from Context but say it in a natural, helpful way
+6. Don't use numbered lists or bullet points - just talk normally
+7. If the Context doesn't have relevant info for their question, say you don't have that information
 
 Context:
 {context}
 
 Question: {query}
 
-Provide ONE complete sentence as the answer. Nothing more.
+Give a brief, natural answer with just the key points they need to know.
 
 Answer (in {language}):"""
         
@@ -568,8 +558,8 @@ Answer (in {language}):"""
             
             print("🤖 Calling Groq API...")
             print(f"   Model: llama-3.3-70b-versatile")
-            print(f"   Temperature: 0.3")
-            print(f"   Max tokens: 200")
+            print(f"   Temperature: 0.5")
+            print(f"   Max tokens: 250")
             
             # Generate response using Groq
             print("⏳ Generating response...")
@@ -577,7 +567,7 @@ Answer (in {language}):"""
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a precise AI assistant for Karnavati University. Answer in 1-2 complete sentences only. Use ONLY the provided context."
+                        "content": "You are a friendly student helper at UIT (Unitedworld Institute of Technology) - the engineering college at Karnavati University. You ONLY have information about UIT engineering programs (B.Tech in CSE, AIML, Data Science, Cyber Security, ECE). If asked about law, management, design, or other departments, politely clarify that you're specifically for UIT engineering and they should contact the main university office. Talk like a real person helping another student - natural, brief, and to the point. Give only key information they need in 2-4 sentences. No lists, no formal language, just helpful conversation. Use only the provided context."
                     },
                     {
                         "role": "user",
@@ -585,8 +575,8 @@ Answer (in {language}):"""
                     }
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.3,
-                max_tokens=200,
+                temperature=0.5,
+                max_tokens=250,
                 top_p=0.9,
             )
             
@@ -631,7 +621,7 @@ Answer (in {language}):"""
             search_query = question
         
         # Search for relevant documents using the (possibly reconstructed) query
-        relevant_docs = self.search(search_query, n_results=2)
+        relevant_docs = self.search(search_query, n_results=3)
         
         # Generate response with conversation context
         answer = self.generate_response(question, relevant_docs, language, history)

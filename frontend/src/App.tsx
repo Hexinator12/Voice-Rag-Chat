@@ -304,7 +304,7 @@ function App() {
                             <div className="welcome-screen">
                                 <div className="welcome-icon">🎓</div>
                                 <h2>Welcome to Voice RAG!</h2>
-                                <p>Ask me anything about Karnavati University - admissions, programs, facilities, and more!</p>
+                                <p>Ask me anything about UIT (Unitedworld Institute of Technology) - admissions, programs, faculty, facilities, and more!</p>
 
                                 <div className="example-questions">
                                     <div className="example-question" onClick={() => handleTextQuery("What are the admission requirements for B.Tech IT?")}>
@@ -315,9 +315,9 @@ function App() {
                                         <div className="icon">🏠</div>
                                         <div className="text">Tell me about hostel facilities</div>
                                     </div>
-                                    <div className="example-question" onClick={() => handleTextQuery("Who is the dean of the Law faculty?")}>
+                                    <div className="example-question" onClick={() => handleTextQuery("Who is the dean of UIT?")}>
                                         <div className="icon">👨‍🏫</div>
-                                        <div className="text">Who is the dean of the Law faculty?</div>
+                                        <div className="text">Who is the dean of UIT?</div>
                                     </div>
                                 </div>
                             </div>
