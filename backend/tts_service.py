@@ -31,10 +31,7 @@ class TTSService:
         voice_map = {
             # Studio voices - Most natural and expressive
             'English': ('en-US', 'en-US-Studio-O'),     # Female, warm, very natural
-            'Hindi': ('hi-IN', 'hi-IN-Wavenet-D'),      # Female, clear, natural
-            'Marathi': ('mr-IN', 'mr-IN-Wavenet-A'),    # Female, natural
-            'Tamil': ('ta-IN', 'ta-IN-Wavenet-A'),      # Female, clear
-            'Telugu': ('te-IN', 'te-IN-Standard-A'),    # Female, natural
+            'Hindi': ('hi-IN', 'hi-IN-Wavenet-D')       # Female, clear, natural
         }
         
         lang_code, voice_name = voice_map.get(language, ('en-US', 'en-US-Studio-O'))

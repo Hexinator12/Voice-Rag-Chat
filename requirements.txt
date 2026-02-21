@@ -9,10 +9,14 @@ python-dotenv==1.0.0
 google-generativeai==0.8.6
 google-cloud-texttospeech==2.34.0
 
+# LLM APIs
+groq==1.0.0
+
 # RAG & Embeddings  
-sentence-transformers==2.3.1
-faiss-cpu==1.9.0.post1
+qdrant-client
+langchain-google-genai
 numpy>=1.25.0
+sentence-transformers
 
 # Speech Recognition
 SpeechRecognition==3.14.5

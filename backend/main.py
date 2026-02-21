@@ -184,10 +184,7 @@ async def get_supported_languages():
     return {
         "languages": [
             {"code": "en", "name": "English", "nativeName": "English"},
-            {"code": "hi", "name": "Hindi", "nativeName": "हिंदी"},
-            {"code": "mr", "name": "Marathi", "nativeName": "मराठी"},
-            {"code": "ta", "name": "Tamil", "nativeName": "தமிழ்"},
-            {"code": "te", "name": "Telugu", "nativeName": "తెలుగు"}
+            {"code": "hi", "name": "Hindi", "nativeName": "हिंदी"}
         ]
     }
 

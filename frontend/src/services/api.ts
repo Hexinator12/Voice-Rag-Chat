@@ -99,7 +99,6 @@ export const apiService = {
     },
 
     async healthCheck(): Promise<{ status: string }> {
-        console.log('Checking backend health...');
         const response = await api.get<{ status: string }>('/api/health');
         return response.data;
     },

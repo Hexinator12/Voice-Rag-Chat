@@ -10,6 +10,8 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const recognitionRef = useRef<any>(null);
+    const transcriptRef = useRef(''); // Ref to access latest transcript in closures
+    const hasSubmittedRef = useRef(false); // Ref to prevent double submission
 
     useEffect(() => {
         // Initialize Web Speech API
@@ -21,7 +23,6 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
             recognition.continuous = true;  // Keep listening even after pauses
             recognition.interimResults = true;  // Show what's being said in real-time
             recognition.maxAlternatives = 1;
-
 
             // Map selected language to browser language code (only well-supported languages)
             const languageCodeMap: { [key: string]: string } = {
@@ -36,6 +37,8 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
                 console.log('🎤 Speech recognition started');
                 setIsListening(true);
                 setTranscript('');
+                transcriptRef.current = '';
+                hasSubmittedRef.current = false;
             };
 
             recognition.onresult = (event: any) => {
@@ -47,6 +50,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
 
                 // Update the display with current transcript
                 setTranscript(fullTranscript);
+                transcriptRef.current = fullTranscript;
                 console.log('📝 Current transcript:', fullTranscript);
             };
 
@@ -54,11 +58,12 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
                 console.log('🛑 Speech recognition ended');
                 setIsListening(false);
 
-                // Send the final transcript when recognition ends
-                if (transcript && transcript.trim().length > 0) {
+                // Send the final transcript ONLY if we haven't submitted manually yet
+                if (!hasSubmittedRef.current && transcriptRef.current && transcriptRef.current.trim().length > 0) {
                     const detectedLang = recognition.lang || 'en-US';
-                    console.log('✅ Final transcript:', transcript, 'Language:', detectedLang);
-                    onTranscript(transcript, detectedLang);
+                    console.log('✅ Final transcript (auto):', transcriptRef.current, 'Language:', detectedLang);
+                    onTranscript(transcriptRef.current, detectedLang);
+                    hasSubmittedRef.current = true;
                 }
             };
 
@@ -69,11 +74,13 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
                 if (event.error === 'network') {
                     alert('⚠️ Voice requires internet connection. Please connect to WiFi and try again.');
                 } else if (event.error === 'no-speech') {
-                    alert('No speech detected. Please try again.');
+                    // Ignore no-speech error for UX, just stop
                 } else if (event.error === 'not-allowed') {
                     alert('Microphone access denied. Please allow microphone access.');
+                } else if (event.error === 'aborted') {
+                    // Ignore aborted
                 } else {
-                    alert(`Error: ${event.error}`);
+                    console.warn(`Speech recognition error: ${event.error}`);
                 }
             };
 
@@ -90,6 +97,8 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
     const startListening = () => {
         if (recognitionRef.current && !isListening) {
             try {
+                transcriptRef.current = ''; // Reset ref
+                hasSubmittedRef.current = false;
                 recognitionRef.current.start();
             } catch (error) {
                 console.error('Error starting recognition:', error);
@@ -101,16 +110,18 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
     const stopListening = () => {
         if (recognitionRef.current && isListening) {
             try {
-                // Send the transcript before stopping
-                if (transcript && transcript.trim().length > 0) {
+                // Send the transcript before stopping (Manual Submit)
+                if (!hasSubmittedRef.current && transcriptRef.current && transcriptRef.current.trim().length > 0) {
                     const detectedLang = recognitionRef.current.lang || 'en-US';
-                    console.log('✅ Sending transcript on stop:', transcript, 'Language:', detectedLang);
-                    onTranscript(transcript, detectedLang);
+                    console.log('✅ Sending transcript on stop:', transcriptRef.current, 'Language:', detectedLang);
+                    onTranscript(transcriptRef.current, detectedLang);
+                    hasSubmittedRef.current = true; // Mark as submitted
                 }
-                
+
                 recognitionRef.current.stop();
                 setIsListening(false);
                 setTranscript('');
+                transcriptRef.current = '';
             } catch (error) {
                 console.error('Error stopping recognition:', error);
                 setIsListening(false);
@@ -141,19 +152,28 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
                     🎤
                 </button>
             ) : (
-                <div className="recording-controls">
-                    <div className="recording-indicator">
-                        <span className="recording-dot"></span>
-                        <span className="recording-time">Listening...</span>
-                        {transcript && (
-                            <div className="interim-transcript" style={{ marginTop: '8px', fontSize: '14px' }}>
-                                "{transcript}"
-                            </div>
-                        )}
+                <div className="voice-overlay">
+                    <div className="voice-content">
+                        <div className="voice-status">Listening...</div>
+
+                        <div className="voice-visualizer">
+                            <div className="visualizer-bar"></div>
+                            <div className="visualizer-bar"></div>
+                            <div className="visualizer-bar"></div>
+                            <div className="visualizer-bar"></div>
+                            <div className="visualizer-bar"></div>
+                        </div>
+
+                        <div className="voice-transcript">
+                            {transcript || "Speak now..."}
+                        </div>
                     </div>
-                    <button onClick={stopListening} className="stop-button">
-                        ⏹️ Stop
-                    </button>
+
+                    <div className="voice-controls">
+                        <button onClick={stopListening} className="stop-listening-btn">
+                            ⏹️ Stop Listening
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

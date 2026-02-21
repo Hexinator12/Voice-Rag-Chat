@@ -1,0 +1,576 @@
+[
+  {
+    "id": "ku_identity",
+    "content": "Karnavati University was established in 2017 in Uvarsad, near Gandhinagar, Gujarat under The Gujarat Private Universities (Amendment) Act, 2017 by Karnavati Medical and Educational Trust (KMET).",
+    "category": "institution_identity",
+    "program": "ALL",
+    "keywords": ["establishment", "location", "founding", "KMET", "2017", "Gujarat", "Uvarsad", "Gandhinagar"]
+  },
+  {
+    "id": "ku_recognition",
+    "content": "Karnavati University is recognized by the University Grants Commission (UGC) and is a member of the Association of Commonwealth Universities (ACU).",
+    "category": "accreditation",
+    "program": "ALL",
+    "keywords": ["UGC", "ACU", "recognition", "accreditation", "approved", "trustworthy", "valid", "internationally recognized"]
+  },
+  {
+    "id": "ku_academic_fields",
+    "content": "Karnavati University offers undergraduate and postgraduate programmes in management, design, law, liberal arts, commerce, media studies, and dentistry through six constituent colleges.",
+    "category": "academic_offerings",
+    "program": "ALL",
+    "keywords": ["programmes", "fields", "colleges", "offerings", "courses", "study"]
+  },
+  {
+    "id": "ku_engineering_offerings",
+    "content": "Karnavati University offers engineering programs through Unitedworld Institute of Technology (UIT), including B.Tech in Computer Science, AI & ML, Data Science, Cyber Security, and Electronics & Communication Engineering.",
+    "category": "academic_offerings",
+    "program": "ALL",
+    "keywords": ["engineering", "B.Tech", "technology", "programmes", "UIT", "courses"]
+  },
+  {
+    "id": "ku_scholarships",
+    "content": "Karnavati University offers scholarships to deserving candidates from diverse backgrounds and economic statuses.",
+    "category": "financial_support",
+    "program": "ALL",
+    "keywords": ["scholarships", "financial aid", "fees", "funding", "merit", "support"]
+  },
+  {
+    "id": "ku_facilities",
+    "content": "Campus facilities include modern libraries, cafeterias, classrooms, and laboratories designed to enhance student learning experience.",
+    "category": "infrastructure",
+    "program": "ALL",
+    "keywords": ["facilities", "campus", "infrastructure", "library", "cafeteria", "classrooms"]
+  },
+  {
+    "id": "ku_hostel_facilities",
+    "content": "Karnavati University provides separate hostel facilities for boys and girls. Hostel fees are approximately ₹1.5 lakh yearly, which includes food and accommodation.",
+    "category": "infrastructure",
+    "program": "ALL",
+    "keywords": ["hostel", "accommodation", "boys hostel", "girls hostel", "mess", "food", "residential", "fees"]
+  },
+  {
+    "id": "ku_sports_facilities",
+    "content": "The campus has extensive sports facilities including basketball court, volleyball court, cricket ground, badminton court, and football ground.",
+    "category": "infrastructure",
+    "program": "ALL",
+    "keywords": ["sports", "facilities", "basketball", "volleyball", "cricket", "badminton", "football", "playground", "ground"]
+  },
+  {
+    "id": "ku_wifi_facility",
+    "content": "Karnavati University provides 24x7 WiFi connectivity available across the entire campus.",
+    "category": "infrastructure",
+    "program": "ALL",
+    "keywords": ["WiFi", "internet", "connectivity", "24x7", "campus", "network"]
+  },
+  {
+    "id": "ku_medical_facilities",
+    "content": "Karnavati University provides comprehensive on-campus medical facilities including a dedicated health center with resident physician and staff nurse for consultations and first aid, 24x7 ambulance service for emergencies, and dental care through Karnavati School of Dentistry OPD with advanced dental clinics. The health center provides routine check-ups and is part of the 24x7 secured campus infrastructure.",
+    "category": "infrastructure",
+    "program": "ALL",
+    "keywords": ["medical", "health center", "doctor", "ambulance", "emergency", "dental", "first aid", "healthcare"]
+  },
+  {
+    "id": "ku_placement_stats",
+    "content": "Over 200 companies visit Karnavati University annually through the dedicated global placement team offering employment opportunities across various sectors.",
+    "category": "placement_statistics",
+    "program": "ALL",
+    "keywords": ["placement", "companies", "recruitment", "statistics", "visit"]
+  },
+  {
+    "id": "ku_motto",
+    "content": "Karnavati University's motto is 'Shikshanat Siddhi' meaning 'From Education to Achievement', representing the transformative journey from learning to success.",
+    "category": "philosophy",
+    "program": "ALL",
+    "keywords": ["motto", "philosophy", "Shikshanat Siddhi", "mission", "values"]
+  },
+  {
+    "id": "ku_location_distance",
+    "content": "UIT Karnavati University is located approximately 10 km away from Gandhinagar city in Uvarsad.",
+    "category": "location_access",
+    "program": "ALL",
+    "keywords": ["location", "distance", "Gandhinagar", "far", "how far", "away"]
+  },
+  {
+    "id": "ku_transportation",
+    "content": "Karnavati University provides transportation facilities for students. Academic year transportation fee is ₹54,000. Bus service is available from various routes with designated boarding points decided by management. Students can reach campus by availing university transportation or by own vehicle. For transport queries, contact +91 6358913934 (Monday to Saturday, 10:00 AM to 04:30 PM).",
+    "category": "location_access",
+    "program": "ALL",
+    "keywords": ["transportation", "bus", "travel", "reach", "routes", "transport fees", "vehicle", "Ahmedabad"]
+  },
+  {
+    "id": "ku_anti_ragging",
+    "content": "Ragging is strictly prohibited at Karnavati University. Regular awareness programs are conducted and strict counseling is implemented to prevent ragging.",
+    "category": "campus_policies",
+    "program": "ALL",
+    "keywords": ["ragging", "anti-ragging", "prohibited", "safety", "awareness", "prevention"]
+  },
+  {
+    "id": "ku_attendance_policy",
+    "content": "Karnavati University requires 75% attendance for every student.",
+    "category": "campus_policies",
+    "program": "ALL",
+    "keywords": ["attendance", "75%", "policy", "requirement", "mandatory"]
+  },
+  {
+    "id": "uit_identity",
+    "content": "Unitedworld Institute of Technology (UIT) is a constituent institute of Karnavati University dedicated to engineering, science, and technology education.",
+    "category": "institution_identity",
+    "program": "ALL_UIT",
+    "keywords": ["UIT", "engineering institute", "constituent", "technology"]
+  },
+  {
+    "id": "uit_dean",
+    "content": "The Dean of Unitedworld Institute of Technology (UIT) is Dr. Puneet Sharma.",
+    "category": "administration",
+    "program": "ALL_UIT",
+    "keywords": ["Dean", "Dr. Puneet Sharma", "head", "director", "leadership", "administration"]
+  },
+  {
+    "id": "uit_approach",
+    "content": "UIT follows a student-centric learning environment promoting active learning, cross-disciplinary work, and strong foundation in engineering fundamentals.",
+    "category": "teaching_methodology",
+    "program": "ALL_UIT",
+    "keywords": ["pedagogy", "learning approach", "teaching", "student-centric", "practical", "theory"]
+  },
+  {
+    "id": "uit_research_opportunities",
+    "content": "UIT provides research opportunities for undergraduate students through Karnavati School of Research (KSR). KSR is a pioneering institution dedicated to advancing knowledge and fostering innovation in various fields of research. Committed to excellence and scholarly inquiry, KSR offers diverse research programmes and initiatives aimed at addressing pressing societal challenges and pushing the boundaries of human understanding.",
+    "category": "academic_opportunities",
+    "program": "ALL_UIT",
+    "keywords": ["research", "KSR", "undergraduate research", "innovation", "scholarly", "projects"]
+  },
+  {
+    "id": "uit_tech_communities",
+    "content": "UIT has multiple coding clubs and tech communities including Cyber Security Club, AI Club, Robotics Club, IEEE Chapter, Geeks for Geeks Community, and many more.",
+    "category": "student_activities",
+    "program": "ALL_UIT",
+    "keywords": ["clubs", "coding club", "tech community", "cyber security club", "AI club", "robotics", "IEEE", "GeeksforGeeks", "societies"]
+  },
+  {
+    "id": "uit_scholarship_govt",
+    "content": "UIT offers Government Scholarships for B.Tech students.",
+    "category": "financial_support",
+    "program": "ALL_UIT",
+    "keywords": ["scholarship", "government", "financial aid", "B.Tech"]
+  },
+  {
+    "id": "uit_scholarship_defence",
+    "content": "UIT offers Defence Scholarship for Expired Service, Injured/Retired, and Serving Personnel.",
+    "category": "financial_support",
+    "program": "ALL_UIT",
+    "keywords": ["scholarship", "defence", "military", "armed forces", "personnel"]
+  },
+  {
+    "id": "uit_btech_fees",
+    "content": "B.Tech fee structure for 2025-2026: Year 1 - ₹1,81,500 (Tuition ₹1,51,500 + Admission ₹30,000), Year 2 - ₹1,51,500, Year 3 - ₹1,51,500, Year 4 - ₹1,51,500. Total 4-year fees: ₹6,36,000.",
+    "category": "financial_support",
+    "program": "ALL_UIT",
+    "keywords": ["fees", "fee structure", "tuition fees", "admission fees", "B.Tech fees", "cost", "charges", "2025", "2026"]
+  },
+  {
+    "id": "uit_admission_timeline",
+    "content": "UIT B.Tech admissions typically start in May-June for the upcoming academic year.",
+    "category": "admission_process",
+    "program": "ALL_UIT",
+    "keywords": ["admission", "start date", "May", "June", "timeline", "when"]
+  },
+  {
+    "id": "uit_placement_support",
+    "content": "UIT provides 100% placement assistance with 100+ company linkages.",
+    "category": "placement_statistics",
+    "program": "ALL_UIT",
+    "keywords": ["placement", "internship", "companies", "assistance", "support"]
+  },
+  {
+    "id": "uit_placement_2025",
+    "content": "UIT at Karnavati University recorded strong placements in 2025 with approximately 85% placement rate. Top recruiters include Amazon, TCS, Accenture, and Deloitte. Highest package: ₹45 LPA, Average package for top performers: ₹12 LPA, Lowest package: ₹4.5 LPA.",
+    "category": "placement_statistics",
+    "program": "ALL_UIT",
+    "keywords": ["placement", "2025", "rate", "85%", "highest package", "average package", "Amazon", "TCS", "Accenture", "Deloitte", "salary"]
+  },
+  {
+    "id": "uit_placement_criteria",
+    "content": "Placement eligibility at UIT depends on student's performance in interviews and meeting the eligibility criteria set by recruiting companies. There is no fixed minimum CGPA requirement applicable to all companies, as criteria varies by recruiter.",
+    "category": "placement_statistics",
+    "program": "ALL_UIT",
+    "keywords": ["placement", "eligibility", "CGPA", "criteria", "interview", "performance"]
+  },
+  {
+    "id": "uit_infrastructure",
+    "content": "UIT has state-of-the-art infrastructure including modern labs, workshops, libraries, hostels, and classrooms.",
+    "category": "infrastructure",
+    "program": "ALL_UIT",
+    "keywords": ["facilities", "labs", "infrastructure", "hostel", "library", "workshops"]
+  },
+  {
+    "id": "uit_incubation",
+    "content": "Karnavati University Innovation and Incubation Centre (KUIC) on campus supports students in developing ideas into successful ventures.",
+    "category": "entrepreneurship",
+    "program": "ALL_UIT",
+    "keywords": ["incubation", "KUIC", "startup", "entrepreneurship", "innovation"]
+  },
+  {
+    "id": "uit_google_certification",
+    "content": "UIT offers industry-recognized Google Certification to enhance student employability.",
+    "category": "certifications",
+    "program": "ALL_UIT",
+    "keywords": ["Google", "certification", "industry recognition", "optional", "employability"]
+  },
+  {
+    "id": "uit_admission_general",
+    "content": "General category applicants need minimum 65% aggregate in 10+2 with Physics, Chemistry, and Mathematics from COBSE recognized boards.",
+    "category": "admission_eligibility",
+    "program": "ALL_UIT",
+    "keywords": ["eligibility", "admission", "general category", "10+2", "65%", "percentage", "PCM", "Physics", "Chemistry", "Mathematics", "compulsory"]
+  },
+  {
+    "id": "uit_admission_reserved",
+    "content": "SC/ST/OBC category applicants need minimum 50% aggregate in 10+2 with Physics, Chemistry, and Mathematics from COBSE recognized boards.",
+    "category": "admission_eligibility",
+    "program": "ALL_UIT",
+    "keywords": ["eligibility", "admission", "SC", "ST", "OBC", "10+2", "50%", "percentage", "reserved category", "PCM"]
+  },
+  {
+    "id": "uit_admission_selection",
+    "content": "Selection is based on JEE MAINS 2025 or GUJCET 2025 scores followed by Personal Interview.",
+    "category": "admission_process",
+    "program": "ALL_UIT",
+    "keywords": ["selection", "JEE", "GUJCET", "interview", "entrance exam", "JEE Main", "personal interview", "mandatory"]
+  },
+  {
+    "id": "common_po_complete",
+    "content": "Common Programme Outcomes for all UIT engineering programmes: PO1-Engineering Knowledge (apply mathematics, science, engineering to solve problems), PO2-Problem Analysis (identify and analyze using first principles), PO3-Design Solutions (consider health, safety, cultural, environmental factors), PO4-Investigation (conduct research and experiments), PO5-Modern Tools (use engineering and IT tools), PO6-Engineer and Society (assess societal and legal issues), PO7-Environment and Sustainability (understand impact and sustainable development), PO8-Ethics (apply professional ethics), PO9-Teamwork (work in diverse teams), PO10-Communication (effective technical communication), PO11-Project Management (apply management principles), PO12-Lifelong Learning (engage in continuous learning).",
+    "category": "programme_outcomes",
+    "program": "ALL_UIT",
+    "keywords": ["PO", "programme outcomes", "graduate attributes", "learning outcomes", "skills", "problem-solving", "design", "ethics", "teamwork", "communication"]
+  },
+  {
+    "id": "btech_base_identity",
+    "content": "B.Tech is a 4-year undergraduate engineering program offered by UIT, Karnavati University. Eligibility requires 10+2 with Physics, Chemistry, and Mathematics. Selection is based on JEE MAINS or GUJCET followed by personal interview.",
+    "category": "program_identity",
+    "program": "B.Tech",
+    "keywords": ["B.Tech", "duration", "4 years", "undergraduate", "engineering"]
+  },
+  {
+    "id": "btech_honours_concept",
+    "content": "UIT offers B.Tech Honours programs with industry certifications from Google, IBM, and Paytm. Honours certifications are optional and do not change the degree - students receive B.Tech degree regardless of certification completion. Honours programs provide additional specialized training with industry partners.",
+    "category": "program_policy",
+    "program": "B.Tech",
+    "keywords": ["honours", "optional", "compulsory", "mandatory", "certification", "degree", "policy"]
+  },
+  {
+    "id": "btech_cse_identity",
+    "content": "B.Tech Computer Science and Engineering (CSE) is a 4-year program focusing on software development, algorithms, data structures, databases, operating systems, computer networks, and web technologies.",
+    "category": "program_identity",
+    "program": "B.Tech CSE",
+    "keywords": ["CSE", "Computer Science", "B.Tech CSE", "software"]
+  },
+  {
+    "id": "btech_cse_focus",
+    "content": "CSE curriculum covers programming languages (C, C++, Java, Python), data structures, algorithms, database management, operating systems, computer networks, software engineering, web development, and cloud computing fundamentals.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE",
+    "keywords": ["curriculum", "software", "programming", "coding", "languages", "syllabus", "subjects", "taught"]
+  },
+  {
+    "id": "btech_cse_pso",
+    "content": "Programme Specific Outcomes for CSE: PSO1-Apply software engineering principles to design, develop, test and maintain software systems. PSO2-Utilize emerging technologies and programming paradigms to solve real-world computational problems. PSO3-Work on industry internships and live projects to gain practical software development experience.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech CSE",
+    "keywords": ["PSO", "outcomes", "software engineering", "internship", "live projects", "practical skills"]
+  },
+  {
+    "id": "btech_cse_careers",
+    "content": "CSE graduates can work as Software Developer, Full Stack Developer, Backend Developer, Frontend Developer, Web Developer, Software Engineer, Database Administrator, System Analyst, or Cloud Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE",
+    "keywords": ["jobs", "careers", "software developer", "roles", "employment", "after CSE"]
+  },
+  {
+    "id": "btech_cse_industries",
+    "content": "CSE graduates find opportunities in IT Services and Consulting, Software Product Companies, E-commerce and Retail, Banking and Financial Services, Telecommunications, Healthcare Technology, Education Technology, and Startups.",
+    "category": "career_industries",
+    "program": "B.Tech CSE",
+    "keywords": ["industries", "sectors", "IT", "software companies", "opportunities", "work"]
+  },
+  {
+    "id": "btech_cse_aiml_identity",
+    "content": "B.Tech CSE-AI & ML (Artificial Intelligence and Machine Learning) focuses on intelligent systems, neural networks, deep learning, natural language processing, computer vision, and data analytics.",
+    "category": "program_identity",
+    "program": "B.Tech CSE-AIML",
+    "keywords": ["AI", "ML", "AIML", "Artificial Intelligence", "Machine Learning"]
+  },
+  {
+    "id": "btech_cse_aiml_focus",
+    "content": "AI & ML curriculum covers machine learning algorithms, deep learning, neural networks, natural language processing (NLP), computer vision, reinforcement learning, data mining, pattern recognition, and AI model development.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE-AIML",
+    "keywords": ["curriculum", "AI", "ML", "neural networks", "NLP", "deep learning", "syllabus", "taught"]
+  },
+  {
+    "id": "btech_cse_aiml_pso",
+    "content": "Programme Specific Outcomes for AI & ML: PSO1-Design and implement machine learning models and deep learning architectures for intelligent applications. PSO2-Apply AI techniques including neural networks, NLP, and computer vision to solve complex real-world problems. PSO3-Engage in research projects and industry internships working with emerging AI/ML technologies and frameworks.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech CSE-AIML",
+    "keywords": ["PSO", "outcomes", "AI", "ML", "internship", "research", "practical skills"]
+  },
+  {
+    "id": "btech_cse_aiml_careers",
+    "content": "AI & ML graduates work as AI Engineer, Machine Learning Engineer, Data Scientist, Deep Learning Engineer, NLP Engineer, Computer Vision Engineer, AI Research Scientist, or MLOps Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE-AIML",
+    "keywords": ["jobs", "AI Engineer", "ML Engineer", "Data Scientist", "careers", "after AIML"]
+  },
+  {
+    "id": "btech_cse_aiml_industries",
+    "content": "AI & ML graduates find opportunities in Technology and AI Companies, Healthcare and Medical Diagnostics, Financial Services and Banking, E-commerce and Recommendation Systems, Autonomous Vehicles and Robotics, Research and Development Labs, Defense and Security, and AI Startups.",
+    "category": "career_industries",
+    "program": "B.Tech CSE-AIML",
+    "keywords": ["industries", "sectors", "healthcare", "finance", "AI companies", "opportunities", "work"]
+  },
+  {
+    "id": "btech_cse_ds_identity",
+    "content": "B.Tech CSE-Data Science focuses on data analytics, big data technologies, statistical modeling, data visualization, and predictive analytics using Python and R.",
+    "category": "program_identity",
+    "program": "B.Tech CSE-DS",
+    "keywords": ["Data Science", "DS", "analytics", "big data"]
+  },
+  {
+    "id": "btech_cse_ds_focus",
+    "content": "Data Science curriculum covers statistical analysis, data mining, big data technologies (Hadoop, Spark), data visualization, predictive modeling, machine learning for analytics, Python and R programming, database systems, and business intelligence.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE-DS",
+    "keywords": ["curriculum", "data science", "statistics", "big data", "analytics", "syllabus", "taught"]
+  },
+  {
+    "id": "btech_cse_ds_pso",
+    "content": "Programme Specific Outcomes for Data Science: PSO1-Apply statistical methods and data mining techniques to extract insights from large datasets. PSO2-Utilize big data technologies and visualization tools to analyze and present data-driven solutions. PSO3-Work on industry projects and internships involving real-world data analytics and business intelligence applications.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech CSE-DS",
+    "keywords": ["PSO", "outcomes", "data analytics", "internship", "projects", "practical skills"]
+  },
+  {
+    "id": "btech_cse_ds_careers",
+    "content": "Data Science graduates work as Data Scientist, Data Analyst, Business Intelligence Analyst, Big Data Engineer, Data Engineer, Analytics Consultant, or Machine Learning Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE-DS",
+    "keywords": ["jobs", "Data Scientist", "Data Analyst", "careers", "roles", "after Data Science"]
+  },
+  {
+    "id": "btech_cse_ds_industries",
+    "content": "Data Science graduates find opportunities in Banking and Financial Services, Healthcare and Pharmaceuticals, E-commerce and Retail Analytics, Consulting Firms, Technology Companies, Telecommunications, Manufacturing and Supply Chain, and Government Analytics.",
+    "category": "career_industries",
+    "program": "B.Tech CSE-DS",
+    "keywords": ["industries", "sectors", "finance", "healthcare", "analytics", "opportunities", "work"]
+  },
+  {
+    "id": "btech_cse_cyber_identity",
+    "content": "B.Tech CSE-Cyber Security focuses on network security, ethical hacking, cryptography, penetration testing, digital forensics, and security operations.",
+    "category": "program_identity",
+    "program": "B.Tech CSE-Cyber Security",
+    "keywords": ["Cyber Security", "ethical hacking", "security"]
+  },
+  {
+    "id": "btech_cse_cyber_focus",
+    "content": "Cyber Security curriculum covers network security, ethical hacking, cryptography, penetration testing, digital forensics, malware analysis, security operations, incident response, web application security, and cloud security.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE-Cyber Security",
+    "keywords": ["curriculum", "cyber security", "ethical hacking", "penetration testing", "syllabus", "taught"]
+  },
+  {
+    "id": "btech_cse_cyber_pso",
+    "content": "Programme Specific Outcomes for Cyber Security: PSO1-Implement security protocols and ethical hacking techniques to identify and mitigate cybersecurity threats. PSO2-Apply cryptography, digital forensics, and penetration testing methodologies to secure systems and networks. PSO3-Engage in industry internships and live security projects to gain practical experience in cybersecurity operations.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech CSE-Cyber Security",
+    "keywords": ["PSO", "outcomes", "security", "ethical hacking", "internship", "practical skills"]
+  },
+  {
+    "id": "btech_cse_cyber_careers",
+    "content": "Cyber Security graduates work as Cybersecurity Analyst, Ethical Hacker, Penetration Tester, Security Operations Center (SOC) Analyst, Information Security Analyst, Digital Forensics Analyst, Security Consultant, or Security Architect.",
+    "category": "career_roles",
+    "program": "B.Tech CSE-Cyber Security",
+    "keywords": ["jobs", "Cybersecurity Analyst", "Ethical Hacker", "careers", "roles", "after Cyber Security"]
+  },
+  {
+    "id": "btech_cse_cyber_industries",
+    "content": "Cyber Security graduates find opportunities in IT Security Companies, Banking and Financial Institutions, Government and Defense Agencies, Healthcare Organizations, Telecommunications, E-commerce Companies, Consulting Firms, and Cybersecurity Startups.",
+    "category": "career_industries",
+    "program": "B.Tech CSE-Cyber Security",
+    "keywords": ["industries", "sectors", "government", "defense", "banking", "opportunities", "work"]
+  },
+  {
+    "id": "btech_ece_identity",
+    "content": "B.Tech Electronics and Communication Engineering (ECE) focuses on electronic circuits, communication systems, embedded systems, VLSI design, signal processing, and microprocessors.",
+    "category": "program_identity",
+    "program": "B.Tech ECE",
+    "keywords": ["ECE", "Electronics", "Communication Engineering"]
+  },
+  {
+    "id": "btech_ece_focus",
+    "content": "ECE curriculum covers analog and digital electronics, communication systems, embedded systems, VLSI design, signal processing, microprocessors, control systems, wireless communication, and IoT.",
+    "category": "specialization_focus",
+    "program": "B.Tech ECE",
+    "keywords": ["curriculum", "electronics", "VLSI", "embedded", "communication", "syllabus", "taught"]
+  },
+  {
+    "id": "btech_ece_pso",
+    "content": "Programme Specific Outcomes for ECE: PSO1-Design and analyze electronic circuits, communication systems, and embedded hardware for various applications. PSO2-Apply VLSI design principles and signal processing techniques to develop electronic systems. PSO3-Work on industry internships and research projects in emerging areas like IoT, 5G, and smart devices.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech ECE",
+    "keywords": ["PSO", "outcomes", "electronics", "VLSI", "internship", "research", "practical skills"]
+  },
+  {
+    "id": "btech_ece_careers",
+    "content": "ECE graduates work as Electronics Engineer, Communication Engineer, Embedded Systems Engineer, VLSI Design Engineer, Signal Processing Engineer, Network Engineer, or Hardware Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech ECE",
+    "keywords": ["jobs", "Electronics Engineer", "VLSI Engineer", "careers", "roles", "after ECE"]
+  },
+  {
+    "id": "btech_ece_industries",
+    "content": "ECE graduates find opportunities in Telecommunications, Consumer Electronics, Semiconductor Industry, Embedded Systems Companies, Defense and Aerospace, Automotive Electronics, IoT and Smart Devices, and Manufacturing Sector.",
+    "category": "career_industries",
+    "program": "B.Tech ECE",
+    "keywords": ["industries", "sectors", "telecommunications", "manufacturing", "defense", "opportunities", "work"]
+  },
+  {
+    "id": "btech_cse_aiml_hons_ibm_identity",
+    "content": "B.Tech CSE-AIML (Hons.) with IBM Generative AI Specialization focuses on foundation models, large language models (LLMs), prompt engineering, and generative AI applications. IBM certification is optional.",
+    "category": "program_identity",
+    "program": "B.Tech CSE-AIML (Hons.) IBM Generative AI",
+    "keywords": ["honours", "IBM", "generative AI", "LLM", "certification", "optional"]
+  },
+  {
+    "id": "btech_cse_aiml_hons_ibm_focus",
+    "content": "IBM Generative AI specialization covers foundation models, neural networks, large language models (LLMs), synthetic data generation, prompt engineering, model fine-tuning with applications in content creation, healthcare, design, and automation.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE-AIML (Hons.) IBM Generative AI",
+    "keywords": ["curriculum", "LLM", "foundation models", "prompt engineering", "generative AI"]
+  },
+  {
+    "id": "btech_cse_aiml_hons_ibm_training",
+    "content": "IBM Generative AI includes 300+ hours training by IBM Professionals at on-campus IBM Centre of Excellence with IBM software lab, 100% guaranteed internship, live projects, and LLM model development for real problems.",
+    "category": "training_infrastructure",
+    "program": "B.Tech CSE-AIML (Hons.) IBM Generative AI",
+    "keywords": ["training", "300 hours", "IBM", "lab", "internship", "live projects", "guaranteed"]
+  },
+  {
+    "id": "btech_cse_aiml_hons_ibm_careers",
+    "content": "IBM Generative AI graduates work as Generative AI Engineer, Cloud Data Engineer, AI/ML Ops Engineer, LLM Application Developer, Data Scientist, Synthetic Data Engineer, Conversational AI Designer, or Foundation Model Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE-AIML (Hons.) IBM Generative AI",
+    "keywords": ["jobs", "AI careers", "LLM developer", "generative AI engineer"]
+  },
+  {
+    "id": "btech_cse_cyber_hons_google_identity",
+    "content": "B.Tech CSE-Cyber Security (Hons.) with Google Cloud Specialization focuses on cloud security, ethical hacking, and digital forensics with Google Cloud certification. Certification is optional.",
+    "category": "program_identity",
+    "program": "B.Tech CSE-Cyber Security (Hons.) Google Cloud",
+    "keywords": ["honours", "Google Cloud", "cyber security", "certification", "optional"]
+  },
+  {
+    "id": "btech_cse_cyber_hons_google_focus",
+    "content": "Google Cloud Cyber Security covers Cloud Identity, IAM, VPC firewalls, Cloud Load Balancing, VPC Service Controls, encryption key management (CMEK, CSEK), Secret Manager, Web Security Scanner, Identity-Aware Proxy, Forseti, and Cloud Logging.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE-Cyber Security (Hons.) Google Cloud",
+    "keywords": ["curriculum", "cloud security", "IAM", "encryption", "VPC", "Google Cloud"]
+  },
+  {
+    "id": "btech_cse_cyber_hons_google_training",
+    "content": "Google Cloud Cyber Security includes 350+ hours training by Google-certified trainers with Google-built lab environment, Google-developed curriculum, live projects, hackathons, and PPO/internship at top IT firms.",
+    "category": "training_infrastructure",
+    "program": "B.Tech CSE-Cyber Security (Hons.) Google Cloud",
+    "keywords": ["training", "350 hours", "Google trainers", "labs", "live projects", "hackathons"]
+  },
+  {
+    "id": "btech_cse_cyber_hons_google_careers",
+    "content": "Google Cloud Cyber Security graduates work as Cloud Information Security Analyst, Cloud Security Architect, Cloud Security Engineer, Information Security Specialist, SOC Analyst, Penetration Tester, or DevSecOps Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE-Cyber Security (Hons.) Google Cloud",
+    "keywords": ["jobs", "cloud security", "DevSecOps", "security architect"]
+  },
+  {
+    "id": "btech_cse_hons_paytm_identity",
+    "content": "B.Tech CSE (Hons.) in Fintech with Paytm focuses on intersection of finance and technology with Paytm partnership. Joint certification is optional.",
+    "category": "program_identity",
+    "program": "B.Tech CSE (Hons.) Paytm Fintech",
+    "keywords": ["honours", "Paytm", "fintech", "certification", "optional"]
+  },
+  {
+    "id": "btech_cse_hons_paytm_focus",
+    "content": "Paytm Fintech specialization covers digital payments systems, API Development and Integration, Open Banking, InsurTech, Blockchain technology, Data Analytics in Finance, mobile banking, crypto-assets, and financial APIs.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE (Hons.) Paytm Fintech",
+    "keywords": ["curriculum", "payments", "blockchain", "open banking", "API", "fintech"]
+  },
+  {
+    "id": "btech_cse_hons_paytm_training",
+    "content": "Paytm Fintech includes 540+ hours Industry Training with live projects by Paytm, 100% virtual internship, top students get paid internship with Paytm, hackathons with gamification, and industry master classes on Fintech development lifecycle.",
+    "category": "training_infrastructure",
+    "program": "B.Tech CSE (Hons.) Paytm Fintech",
+    "keywords": ["training", "540 hours", "Paytm", "internship", "hackathons", "live projects"]
+  },
+  {
+    "id": "btech_cse_hons_paytm_careers",
+    "content": "Paytm Fintech graduates work as Cloud DevOps Engineer, Blockchain Solutions Architect, Financial Data Scientist, Quantitative Analyst, Digital Payments Infrastructure Engineer, Cloud Security Architect, FinTech Software Engineer, or API Developer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE (Hons.) Paytm Fintech",
+    "keywords": ["jobs", "fintech careers", "blockchain", "payments engineer"]
+  },
+  {
+    "id": "btech_cse_hons_google_cloud_computing_identity",
+    "content": "B.Tech CSE (Hons.) with Google Cloud Specialization in Cloud Computing focuses on cloud-native development, distributed systems, and scalable cloud infrastructure using Google Cloud Platform. Certification is optional.",
+    "category": "program_identity",
+    "program": "B.Tech CSE (Hons.) Google Cloud Computing",
+    "keywords": ["honours", "Google Cloud", "cloud computing", "GCP", "optional"]
+  },
+  {
+    "id": "btech_cse_hons_google_cloud_computing_focus",
+    "content": "Google Cloud Computing covers App Engine, Google Kubernetes Engine (GKE), Compute Engine, serverless computing, Cloud Storage, Cloud SQL, Cloud Bigtable, Firestore, cloud networking, load balancing, auto-scaling, monitoring, and cost optimization.",
+    "category": "specialization_focus",
+    "program": "B.Tech CSE (Hons.) Google Cloud Computing",
+    "keywords": ["curriculum", "Kubernetes", "GKE", "serverless", "storage", "Google Cloud"]
+  },
+  {
+    "id": "btech_cse_hons_google_cloud_computing_training",
+    "content": "Google Cloud Computing includes 350+ hours training by Google-certified trainers with Google-designed curriculum, Google-built lab, live projects, hackathons, and PPO/internship at top IT firms.",
+    "category": "training_infrastructure",
+    "program": "B.Tech CSE (Hons.) Google Cloud Computing",
+    "keywords": ["training", "350 hours", "Google trainers", "labs", "live projects"]
+  },
+  {
+    "id": "btech_cse_hons_google_cloud_computing_careers",
+    "content": "Google Cloud Computing graduates work as Cloud DevOps Engineer, Cloud Solutions Architect, Cloud Engineer, Site Reliability Engineer, or Cloud Security Engineer.",
+    "category": "career_roles",
+    "program": "B.Tech CSE (Hons.) Google Cloud Computing",
+    "keywords": ["jobs", "cloud careers", "DevOps", "SRE", "cloud architect"]
+  },
+  {
+    "id": "btech_ece_hons_google_identity",
+    "content": "B.Tech ECE (Hons.) with Google Cloud offers two tracks: Cloud Computing or Data Analytics. Students get ECE foundation with cloud/analytics skills. Certification is optional.",
+    "category": "program_identity",
+    "program": "B.Tech ECE (Hons.) Google Cloud",
+    "keywords": ["honours", "ECE", "Google Cloud", "dual track", "optional"]
+  },
+  {
+    "id": "btech_ece_hons_google_focus",
+    "content": "ECE Honours with Google Cloud integrates electronic circuits, communication systems, embedded systems, signal processing with cloud infrastructure, big data, and intelligent analytics for Industry 5.0 applications.",
+    "category": "specialization_focus",
+    "program": "B.Tech ECE (Hons.) Google Cloud",
+    "keywords": ["curriculum", "electronics", "cloud integration", "Industry 5.0"]
+  },
+  {
+    "id": "btech_ece_hons_google_training",
+    "content": "ECE Honours Google Cloud includes 350+ hours training by Google-certified trainers with Google curriculum, Google-built lab, live projects, hackathons, and PPO/internship at top IT firms.",
+    "category": "training_infrastructure",
+    "program": "B.Tech ECE (Hons.) Google Cloud",
+    "keywords": ["training", "350 hours", "Google trainers", "live projects"]
+  },
+  {
+    "id": "btech_ece_hons_google_careers",
+    "content": "ECE Honours Google Cloud graduates work as Machine Learning Engineer for Signal Processing, Data Analyst for Telecom & Embedded Systems, Cloud Solutions Architect, AI and Signal Processing Specialist, Systems Design Engineer in Smart Devices, or Technical Consultant in Telecom and Cloud Services.",
+    "category": "career_roles",
+    "program": "B.Tech ECE (Hons.) Google Cloud",
+    "keywords": ["jobs", "ECE cloud", "signal processing", "IoT", "smart devices"]
+  }
+]

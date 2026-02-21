@@ -74,10 +74,7 @@ class TTSQueue {
     private language: string = 'en-US';
     private languageMap: { [key: string]: string } = {
         'en-US': 'English',
-        'hi-IN': 'Hindi',
-        'mr-IN': 'Marathi',
-        'ta-IN': 'Tamil',
-        'te-IN': 'Telugu'
+        'hi-IN': 'Hindi'
     };
 
     constructor(language: string) {
