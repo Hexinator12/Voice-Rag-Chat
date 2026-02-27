@@ -495,78 +495,146 @@ Voice-RAG/
 
 ### Prerequisites
 
-- **Python 3.11** (recommended for best compatibility)
+**Required:**
+
+- **Python 3.11+** (recommended for best performance and compatibility)
 - **Node.js 18+** and npm/yarn
 - **Git** for version control
-- **API Keys**:
-  - Groq API key (free from [console.groq.com](https://console.groq.com))
-  - Qdrant Cloud credentials (free from [cloud.qdrant.io](https://cloud.qdrant.io))
-  - Google Cloud TTS credentials (optional)
+
+**API Keys (Free Tiers Available):**
+
+- **Groq API Key** - Get from [console.groq.com](https://console.groq.com) (completely free, no credit card)
+- **Qdrant Cloud** - Create cluster at [cloud.qdrant.io](https://cloud.qdrant.io) (1GB free)
+- **Google Cloud TTS** - Optional, system works without it (browser TTS fallback)
+
+### Quick Start (5 minutes)
 
 ```bash
-# Clone the repository
-git clone https://github.com/Hexinator12/Voice-RAG.git
-cd Voice-RAG
+# 1. Clone the repository
+git clone https://github.com/YourUsername/voicerag.git
+cd voicerag
 
-# Backend setup
+# 2. Backend setup
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Frontend setup
+# 3. Frontend setup
 cd frontend
 npm install
 cd ..
 
-# Configure environment variables
+# 4. Configure environment variables
 cp .env.example .env
-# Edit `.env` and add your API keys. Do NOT commit `.env` to Git.
+# Edit .env and add your API keys (see Configuration section below)
 
-Important: do not add `models/`, `venv/`, `uploads/` or `.env` to the repo. They are large or contain secrets.
+# 5. Upload data to Qdrant (one-time setup)
+python3 upload_to_qdrant.py
+
+# 6. Start the application
+./start_gemini.sh
+# Or manually:
+# Terminal 1: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+# Terminal 2: cd frontend && npm run dev
 ```
+
+**Access:**
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs (Swagger UI)
 
 ### Configuration
 
-Create a `.env` file in the root directory (example keys shown):
+Create a `.env` file in the root directory:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
-GOOGLE_APPLICATION_CREDENTIALS=path/to/google-cloud-key.json
+# Required: Groq API for LLM
+GROQ_API_KEY=gsk_your_groq_api_key_here
 
-# Qdrant Cloud Configuration
-QDRANT_URL=https://<your-cluster>.us-east-1-1.aws.cloud.qdrant.io
-QDRANT_API_KEY=your_qdrant_api_key
+# Required: Qdrant Cloud for Vector Database
+QDRANT_URL=https://your-cluster-url.us-east-1-0.aws.cloud.qdrant.io
+QDRANT_API_KEY=your_qdrant_api_key_here
 QDRANT_COLLECTION_NAME=uit_rag
+
+# Optional: Google Cloud TTS (falls back to browser TTS if not provided)
+GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-key.json
 ```
 
-### Running Locally
+#### Getting API Keys
 
-````bash
-# Start both backend and frontend (helper script uses `python3` internally)
-./start_gemini.sh
+**Groq API Key:**
 
-# Alternative: start separately
+1. Visit https://console.groq.com
+2. Sign up (free, no credit card required)
+3. Navigate to API Keys
+4. Create new key and copy
+
+**Qdrant Cloud:**
+
+1. Visit https://cloud.qdrant.io
+2. Create account (free tier: 1GB)
+3. Create a cluster (choose Free tier, US-East-1)
+4. Copy cluster URL and API key from dashboard
+5. Collection will be created automatically by `upload_to_qdrant.py`
+
+**Google Cloud TTS (Optional):**
+
+1. Visit https://console.cloud.google.com
+2. Enable Text-to-Speech API
+3. Create service account and download JSON key
+4. Place key file in project root
+5. System works fine without this (uses browser TTS)
+
+### Data Upload (One-time Setup)
+
 ```bash
-# Backend (dev):
+# Activate virtual environment
 source venv/bin/activate
-uvicorn backend.main:app --reload
 
-# Frontend (dev):
-cd frontend
-npm run dev
-````
+# Upload data to Qdrant
+python3 upload_to_qdrant.py
 
-````
+# Expected output:
+# ✅ Sentence Transformers embeddings initialized
+# ✅ Collection created: uit_rag
+# ✅ Batch 1/7 uploaded (20 vectors)
+# ...
+# ✅ Upload complete! 136 vectors in Qdrant
+```
 
-Access the application at `http://localhost:5173` (frontend) and API at `http://localhost:8000`.
+This script:
 
-Quick health check:
+- Loads `rag_chunks_with_faculty.json`
+- Generates 768D embeddings using Sentence Transformers
+- Creates Qdrant collection with COSINE distance
+- Uploads vectors in batches
+- Takes ~2-3 minutes on average hardware
+
+### Verification
+
+Test that everything works:
 
 ```bash
+# Check backend health
 curl http://localhost:8000/api/health
-````
 
----
+# Expected output:
+# {"status": "healthy", "rag_engine": "not initialized", "voice_processor": "not initialized"}
+
+# Test a query
+curl -X POST http://localhost:8000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What B.Tech programs does UIT offer?", "language": "English"}'
+
+# Should return JSON with answer and sources
+
+# Run comprehensive test suite
+chmod +x test_faculty_demo.sh
+./test_faculty_demo.sh
+# Should show 12 passing tests
+```
 
 ---
 
@@ -865,387 +933,6 @@ User Audio Output
 ```
 "I'm from SC category interested in Computer Science.
 What are my admission requirements and scholarship options?"
-```
-
----
-
-## 🛠️ Technology Stack & Justification
-
-### Backend Technologies
-
-#### 1. **FastAPI 0.109**
-
-**Role**: REST API Framework
-
-- ✅ **Performance**: 3x faster than Flask, handles async operations natively
-- ✅ **Auto Documentation**: Built-in OpenAPI/Swagger docs
-- ✅ **Type Safety**: Pydantic integration for request validation
-- ✅ **Modern**: ASGI server support, WebSocket ready
-- **Alternative Considered**: Flask (chosen FastAPI for performance)
-
-#### 2. **Groq API with Llama 3.3 70B**
-
-**Role**: Large Language Model for Response Generation
-
-- ✅ **Speed**: Up to 300 tokens/sec (3x faster than OpenAI)
-- ✅ **Cost**: Completely free tier (no credit card required)
-- ✅ **Quality**: Comparable to GPT-4 for most tasks
-- ✅ **Reliability**: 99.9% uptime, enterprise SLA
-- **Migration History**: Switched from Google Gemini due to quota limits
-- **Configuration**:
-  - Model: `llama-3.3-70b-versatile`
-  - Temperature: 0.3 (factual accuracy)
-  - Max tokens: 200 (concise responses)
-
-#### 3. **Qdrant Cloud**
-
-**Role**: Vector Database for Semantic Search
-
-- ✅ **Performance**: Sub-50ms query latency
-- ✅ **Scalability**: Millions of vectors supported
-- ✅ **Managed**: No infrastructure overhead
-- ✅ **Free Tier**: 1GB storage, sufficient for educational use
-- **Technical Specs**:
-  - Collection: `uit_rag`
-  - Vectors: 136 chunks (768D each)
-  - Distance: COSINE similarity
-  - Hosted: AWS US-East-1
-
-#### 4. **Sentence Transformers (all-mpnet-base-v2)**
-
-**Role**: Text Embedding Model
-
-- ✅ **Quality**: 63.3 STS benchmark score (state-of-the-art)
-- ✅ **Dimensions**: 768 (optimal accuracy/performance balance)
-- ✅ **Multilingual**: Handles code-mixed text well
-- ✅ **Open Source**: No API costs, local inference
-- **Alternative Considered**: OpenAI embeddings (chose local for cost/privacy)
-
-#### 5. **Google Cloud Text-to-Speech**
-
-**Role**: Voice Output (with Browser TTS fallback)
-
-- ✅ **Quality**: Wavenet/Studio voices (most natural)
-- ✅ **Languages**: 50+ languages, including Hindi
-- ✅ **Latency**: <1 second for typical response
-- ✅ **Fallback**: Browser TTS ensures reliability
-
-#### 6. **Python 3.11**
-
-**Role**: Primary Programming Language
-
-- ✅ **Performance**: 10-60% faster than Python 3.10
-- ✅ **Type Hints**: Better IDE support, fewer bugs
-- ✅ **Ecosystem**: Rich AI/ML libraries
-- ✅ **Async Support**: Native async/await for concurrent operations
-
-### Frontend Technologies
-
-#### 1. **React 18.3**
-
-**Role**: UI Framework
-
-- ✅ **Concurrent Rendering**: Better UX during long operations
-- ✅ **Component Reusability**: Modular architecture
-- ✅ **Ecosystem**: Rich library ecosystem (routing, state, etc.)
-- ✅ **Performance**: Virtual DOM optimization
-
-#### 2. **TypeScript**
-
-**Role**: Static Typing for JavaScript
-
-- ✅ **Type Safety**: Catch errors at compile time
-- ✅ **IDE Support**: Better autocomplete, refactoring
-- ✅ **Code Quality**: Self-documenting code
-- ✅ **Team Collaboration**: Clear interfaces and contracts
-
-#### 3. **Vite**
-
-**Role**: Build Tool and Dev Server
-
-- ✅ **Speed**: 10-100x faster than Webpack
-- ✅ **HMR**: Instant hot module replacement
-- ✅ **Modern**: Native ES modules, optimized builds
-- ✅ **Plugin Ecosystem**: Easy integration
-
-#### 4. **Web Speech API**
-
-**Role**: Browser-Based Voice Input
-
-- ✅ **No Backend**: Client-side speech recognition
-- ✅ **Accuracy**: 90%+ for English, 85%+ for Hindi
-- ✅ **Languages**: Supports 50+ languages
-- ✅ **Zero Cost**: Built into modern browsers
-
-### AI/ML Architecture
-
-#### RAG (Retrieval-Augmented Generation)
-
-- **Why**: Combines best of retrieval and generation
-- **Benefit**: Factual accuracy without hallucinations
-- **Trade-off**: Slightly higher latency vs pure LLM
-
-#### Vector Search
-
-- **Why**: Semantic similarity beyond keyword matching
-- **Benefit**: Understands intent, not just words
-- **Example**: "Who teaches Blockchain?" matches "Blockchain is taught by..."
-
-#### Conversation Memory
-
-- **Why**: Multi-turn dialogue coherence
-- **Benefit**: Follow-up questions work naturally
-- **Implementation**: Session-based, in-memory store
-
----
-
-## 📁 Project Structure
-
-```
-voicerag/
-├── backend/
-│   ├── __init__.py
-│   ├── main.py                      # FastAPI app, CORS, endpoints
-│   ├── rag_engine.py                # Core RAG + Groq + Qdrant integration
-│   ├── tts_service.py               # Google Cloud TTS service
-│   ├── voice_processor.py           # Speech recognition handler
-│   └── feedback_service.py          # User feedback collection system
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ChatInterface.tsx    # Main chat UI component
-│   │   │   ├── Message.tsx          # Individual message display
-│   │   │   ├── VoiceInput.tsx       # Voice recording interface
-│   │   │   ├── TextInput.tsx        # Text input component
-│   │   │   └── ConversationSidebar.tsx  # Chat history sidebar
-│   │   ├── services/
-│   │   │   ├── api.ts               # Backend API client
-│   │   │   └── storage.ts           # LocalStorage management
-│   │   ├── hooks/
-│   │   │   └── useConversations.ts  # Conversation state hook
-│   │   ├── utils/
-│   │   │   ├── speech.ts            # Speech recognition utilities
-│   │   │   └── streaming.ts         # Response streaming utilities
-│   │   ├── App.tsx                  # Root component
-│   │   ├── App.css                  # Global styles
-│   │   └── main.tsx                 # Entry point
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
-│
-├── models/                            # Downloaded models (git-ignored)
-│   └── vosk-model-small-en-us-0.15/  # Offline speech (not currently used)
-│
-├── uploads/                           # User uploads (git-ignored)
-├── logs/                              # Application logs (git-ignored)
-│
-├── data.md                            # Source data documentation
-├── rag_chunks_with_faculty.json      # Primary dataset (136 chunks)
-├── rag_chunks_optimized_ss.json      # Optimized chunks for Qdrant upload
-├── upload_to_qdrant.py                # Vector database population script
-│
-├── requirements.txt                   # Python dependencies
-├── runtime.txt                        # Python version specification (3.11)
-├── package.json                       # Root npm config
-│
-├── start_gemini.sh                    # Local startup script (both servers)
-├── stop_gemini.sh                     # Local shutdown script
-├── test_faculty_demo.sh               # Automated testing script
-│
-├── check_python_compatibility.py      # Dependency checker
-├── cleanup_unused_files.sh            # Cleanup utility
-│
-├── .env                               # Environment variables (git-ignored)
-├── .env.example                       # Environment template
-├── .gitignore                         # Git ignore rules
-│
-├── render.yaml                        # Render.com deployment config
-├── DEPLOYMENT.md                      # Deployment instructions
-├── FACULTY_TESTING_GUIDE.md           # Comprehensive test scenarios
-├── FACULTY_REVIEW_SCENARIOS.md        # Demo conversation flows
-├── FINAL_TEST_RESULTS.md              # Test results and analysis
-├── QUICK_REFERENCE.md                 # Quick reference for demos
-└── README.md                          # This file
-```
-
-### Key Files Explained
-
-**Backend:**
-
-- `main.py` (280 lines): FastAPI application with endpoints, CORS, health checks
-- `rag_engine.py` (644 lines): Core RAG implementation with Groq LLM, Qdrant search, conversation memory
-- `tts_service.py`: Google Cloud TTS integration with fallback
-- `voice_processor.py`: Speech recognition handling
-- `feedback_service.py`: User feedback collection and storage
-
-**Frontend:**
-
-- `ChatInterface.tsx`: Main UI component with message display
-- `VoiceInput.tsx`: Web Speech API integration with continuous listening
-- `api.ts`: Backend communication layer
-- `useConversations.ts`: State management for chat history
-
-**Data:**
-
-- `rag_chunks_with_faculty.json`: Curated knowledge base (136 chunks)
-- `data.md`: Raw data source (650 lines of university information)
-- `upload_to_qdrant.py`: Script to generate embeddings and upload to vector DB
-
-**Testing & Documentation:**
-
-- `test_faculty_demo.sh`: Automated test suite (12 test cases)
-- `FACULTY_TESTING_GUIDE.md`: Comprehensive testing scenarios for reviews
-- `FINAL_TEST_RESULTS.md`: Performance metrics and analysis
-
----
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-
-**Required:**
-
-- **Python 3.11+** (recommended for best performance and compatibility)
-- **Node.js 18+** and npm/yarn
-- **Git** for version control
-
-**API Keys (Free Tiers Available):**
-
-- **Groq API Key** - Get from [console.groq.com](https://console.groq.com) (completely free, no credit card)
-- **Qdrant Cloud** - Create cluster at [cloud.qdrant.io](https://cloud.qdrant.io) (1GB free)
-- **Google Cloud TTS** - Optional, system works without it (browser TTS fallback)
-
-### Quick Start (5 minutes)
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/YourUsername/voicerag.git
-cd voicerag
-
-# 2. Backend setup
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# 3. Frontend setup
-cd frontend
-npm install
-cd ..
-
-# 4. Configure environment variables
-cp .env.example .env
-# Edit .env and add your API keys (see Configuration section below)
-
-# 5. Upload data to Qdrant (one-time setup)
-python3 upload_to_qdrant.py
-
-# 6. Start the application
-./start_gemini.sh
-# Or manually:
-# Terminal 1: uvicorn backend.main:app --host 0.0.0.0 --port 8000
-# Terminal 2: cd frontend && npm run dev
-```
-
-**Access:**
-
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs (Swagger UI)
-
-### Detailed Configuration
-
-Create a `.env` file in the root directory:
-
-```env
-# Required: Groq API for LLM
-GROQ_API_KEY=gsk_your_groq_api_key_here
-
-# Required: Qdrant Cloud for Vector Database
-QDRANT_URL=https://your-cluster-url.us-east-1-0.aws.cloud.qdrant.io
-QDRANT_API_KEY=your_qdrant_api_key_here
-QDRANT_COLLECTION_NAME=uit_rag
-
-# Optional: Google Cloud TTS (falls back to browser TTS if not provided)
-GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-key.json
-
-# Optional: Google Gemini (kept for backward compatibility, not currently used)
-GEMINI_API_KEY=your_gemini_key_if_needed
-```
-
-#### Getting API Keys
-
-**Groq API Key:**
-
-1. Visit https://console.groq.com
-2. Sign up (free, no credit card required)
-3. Navigate to API Keys
-4. Create new key and copy
-
-**Qdrant Cloud:**
-
-1. Visit https://cloud.qdrant.io
-2. Create account (free tier: 1GB)
-3. Create a cluster (choose Free tier, US-East-1)
-4. Copy cluster URL and API key from dashboard
-5. Collection will be created automatically by `upload_to_qdrant.py`
-
-**Google Cloud TTS (Optional):**
-
-1. Visit https://console.cloud.google.com
-2. Enable Text-to-Speech API
-3. Create service account and download JSON key
-4. Place key file in project root
-5. System works fine without this (uses browser TTS)
-
-### Data Upload (One-time Setup)
-
-```bash
-# Activate virtual environment
-source venv/bin/activate
-
-# Upload data to Qdrant
-python3 upload_to_qdrant.py
-
-# Expected output:
-# ✅ Sentence Transformers embeddings initialized
-# ✅ Collection created: uit_rag
-# ✅ Batch 1/7 uploaded (20 vectors)
-# ...
-# ✅ Upload complete! 136 vectors in Qdrant
-```
-
-This script:
-
-- Loads `rag_chunks_with_faculty.json`
-- Generates 768D embeddings using Sentence Transformers
-- Creates Qdrant collection with COSINE distance
-- Uploads vectors in batches
-- Takes ~2-3 minutes on average hardware
-
-### Verification
-
-Test that everything works:
-
-```bash
-# Check backend health
-curl http://localhost:8000/api/health
-
-# Expected output:
-# {"status": "healthy", "rag_engine": "not initialized", "voice_processor": "not initialized"}
-
-# Test a query
-curl -X POST http://localhost:8000/api/query \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What B.Tech programs does UIT offer?", "language": "English"}'
-
-# Should return JSON with answer and sources
-
-# Run comprehensive test suite
-chmod +x test_faculty_demo.sh
-./test_faculty_demo.sh
-# Should show 12 passing tests
 ```
 
 ---
@@ -1559,6 +1246,12 @@ Successfully implemented production-grade RAG system with:
 
 ---
 
+## 🚀 Deployment
+
+### Deployment Options
+
+**Render.com (Recommended)**
+
 - Free tier: 750 hours/month
 - Automatic HTTPS
 - Easy GitHub integration
@@ -1571,20 +1264,22 @@ Successfully implemented production-grade RAG system with:
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
-### Important notes (repo & CI)
+### Important Notes
 
-- `.env` contains secrets — keep it out of Git.
-- `models/` may contain large or proprietary weights — use external storage or Git LFS if needed.
-- When pushing the project and overwriting a remote repo, exclude `models/`, `venv/`, `uploads/`, and `.env`.
+- `.env` contains secrets — keep it out of Git
+- `models/` may contain large weights — use external storage or Git LFS if needed
+- When pushing the project, exclude `models/`, `venv/`, `uploads/`, and `.env`
 
-If you need to populate Qdrant from the packaged chunks, run:
+### Data Population
+
+If you need to populate Qdrant from the packaged chunks:
 
 ```bash
 source venv/bin/activate
 python3 upload_to_qdrant.py
 ```
 
-This script uses `rag_chunks_optimized_ss.json` to create embeddings and upload vectors to your configured Qdrant collection. Adjust `BATCH_SIZE` and timeouts in the script if needed.
+This script uses `rag_chunks_with_faculty.json` to create embeddings and upload vectors to your configured Qdrant collection. Adjust `BATCH_SIZE` and timeouts in the script if needed.
 
 ---
 
@@ -1651,8 +1346,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Google Gemini for AI capabilities
-- Google Cloud for TTS services
+- Groq for ultra-fast LLM inference with their free API
+- Qdrant for cloud-native vector database
+- Google Cloud for premium TTS services
+- Sentence Transformers for state-of-the-art embeddings
 - FastAPI for the excellent framework
 - React team for the UI library
 - Open source community
