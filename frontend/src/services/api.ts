@@ -54,8 +54,15 @@ export interface StreamQueryHandlers {
     onError?: (message: string) => void;
 }
 
+export interface StreamQueryOptions {
+    signal?: AbortSignal;
+    timeoutMs?: number;
+    inactivityTimeoutMs?: number;
+}
+
 const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 90000);
 const RETRY_DELAY_MS = 2500;
+const STREAM_INACTIVITY_TIMEOUT_MS = Number(import.meta.env.VITE_STREAM_INACTIVITY_TIMEOUT_MS || 45000);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -159,23 +166,28 @@ export const apiService = {
     async textQueryStream(
         question: string,
         language: string = 'English',
-        handlers?: StreamQueryHandlers
+        handlers?: StreamQueryHandlers,
+        options?: StreamQueryOptions
     ): Promise<QueryResponse> {
-        const response = await fetch(`${API_BASE_URL}/api/query-stream`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ question, language }),
-        });
+        const start = performance.now();
+        console.log('🌊 Stream start', { questionPreview: question.slice(0, 40), language });
 
-        if (!response.ok || !response.body) {
-            throw new Error(`Streaming request failed: ${response.status}`);
-        }
+        const controller = new AbortController();
+        const timeoutMs = options?.timeoutMs ?? REQUEST_TIMEOUT_MS;
+        const inactivityTimeoutMs = options?.inactivityTimeoutMs ?? STREAM_INACTIVITY_TIMEOUT_MS;
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        const onExternalAbort = () => controller.abort();
+        options?.signal?.addEventListener('abort', onExternalAbort);
+
+        const requestTimeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        let inactivityTimeoutId: number | null = null;
+
+        const resetInactivityTimeout = () => {
+            if (inactivityTimeoutId !== null) {
+                clearTimeout(inactivityTimeoutId);
+            }
+            inactivityTimeoutId = window.setTimeout(() => controller.abort(), inactivityTimeoutMs);
+        };
 
         let finalResult: QueryResponse | null = null;
 
@@ -214,37 +226,73 @@ export const apiService = {
             }
         };
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/query-stream`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question, language }),
+                signal: controller.signal,
+            });
 
-            buffer += decoder.decode(value, { stream: true });
-            const events = buffer.split('\n\n');
-            buffer = events.pop() || '';
-
-            for (const eventBlock of events) {
-                if (!eventBlock.trim()) continue;
-
-                const lines = eventBlock.split('\n');
-                let eventType = 'message';
-                const dataLines: string[] = [];
-
-                for (const line of lines) {
-                    if (line.startsWith('event:')) {
-                        eventType = line.slice(6).trim();
-                    } else if (line.startsWith('data:')) {
-                        dataLines.push(line.slice(5).trim());
-                    }
-                }
-
-                dispatchEvent(eventType, dataLines.join('\n'));
+            if (!response.ok || !response.body) {
+                throw new Error(`Streaming request failed: ${response.status}`);
             }
-        }
 
-        if (finalResult) {
-            return finalResult;
-        }
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
 
-        throw new Error('Streaming completed without final result');
+            resetInactivityTimeout();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                resetInactivityTimeout();
+
+                buffer += decoder.decode(value, { stream: true });
+                const events = buffer.split('\n\n');
+                buffer = events.pop() || '';
+
+                for (const eventBlock of events) {
+                    if (!eventBlock.trim()) continue;
+
+                    const lines = eventBlock.split('\n');
+                    let eventType = 'message';
+                    const dataLines: string[] = [];
+
+                    for (const line of lines) {
+                        if (line.startsWith('event:')) {
+                            eventType = line.slice(6).trim();
+                        } else if (line.startsWith('data:')) {
+                            dataLines.push(line.slice(5).trim());
+                        }
+                    }
+
+                    dispatchEvent(eventType, dataLines.join('\n'));
+                }
+            }
+
+            if (finalResult) {
+                console.log('🌊 Stream done', { durationMs: Math.round(performance.now() - start) });
+                return finalResult;
+            }
+
+            throw new Error('Streaming completed without final result');
+        } catch (error: any) {
+            const aborted = controller.signal.aborted || error?.name === 'AbortError';
+            const message = aborted ? 'Streaming request cancelled or timed out' : (error?.message || 'Streaming error');
+            handlers?.onError?.(message);
+            console.error('❌ Stream failure', { message });
+            throw error;
+        } finally {
+            clearTimeout(requestTimeoutId);
+            if (inactivityTimeoutId !== null) {
+                clearTimeout(inactivityTimeoutId);
+            }
+            options?.signal?.removeEventListener('abort', onExternalAbort);
+        }
     },
 };

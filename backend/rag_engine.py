@@ -6,6 +6,7 @@ import json
 import os
 import pickle
 import random
+import time
 from typing import List, Dict, Any, Optional, Iterator
 from datetime import datetime
 import numpy as np
@@ -672,6 +673,8 @@ Answer (in {language}):"""
 
     def stream_query(self, question: str, language: str = "English", session_id: str = "default") -> Iterator[Dict[str, Any]]:
         """Stream query response as incremental events for SSE consumers."""
+        started_at = time.perf_counter()
+        print(f"🌊 stream_query start | session={session_id} | lang={language} | q='{question[:60]}'")
         history = self.memory.get_history(session_id, last_n=5)
 
         is_followup, reconstructed_query = self._is_followup_answer(question, history)
@@ -748,6 +751,7 @@ Answer (in {language}):"""
 
         full_answer = ""
         sentence_buffer = ""
+        sentence_count = 0
 
         try:
             stream = self.groq_client.chat.completions.create(
@@ -786,6 +790,7 @@ Answer (in {language}):"""
                         break
                     sentence = match.group(1).strip()
                     if sentence:
+                        sentence_count += 1
                         yield {"event": "sentence", "text": sentence}
                     sentence_buffer = sentence_buffer[match.end():]
 
@@ -797,10 +802,12 @@ Answer (in {language}):"""
 
                     chunk_text = sentence_buffer[:split_at].strip()
                     if chunk_text:
+                        sentence_count += 1
                         yield {"event": "sentence", "text": chunk_text}
                     sentence_buffer = sentence_buffer[split_at:].lstrip()
 
             if sentence_buffer.strip():
+                sentence_count += 1
                 yield {"event": "sentence", "text": sentence_buffer.strip()}
 
             answer = full_answer.strip() if full_answer.strip() else self.generate_response(question, relevant_docs, language, history)
@@ -815,7 +822,14 @@ Answer (in {language}):"""
                 "language": language,
                 "session_id": session_id,
             }
+            print(
+                f"🌊 stream_query done | session={session_id} | chars={len(answer)} | "
+                f"sentence_events={sentence_count} | duration_ms={int((time.perf_counter() - started_at) * 1000)}"
+            )
         except Exception as e:
+            print(
+                f"❌ stream_query error | session={session_id} | duration_ms={int((time.perf_counter() - started_at) * 1000)} | error={e}"
+            )
             yield {"event": "error", "message": str(e)}
     
     def clear_conversation(self, session_id: str = "default"):

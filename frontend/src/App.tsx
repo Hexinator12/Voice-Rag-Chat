@@ -18,6 +18,7 @@ function App() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [elevenlabsStatus, setElevenlabsStatus] = useState<any>(null);
     const syncedQueueRef = useRef<{ clear: () => void } | null>(null);
+    const streamAbortControllerRef = useRef<AbortController | null>(null);
     const messagesRef = useRef<Message[]>([]);
     const activeConversationIdRef = useRef<string | null>(null);
     const lastHydratedConversationIdRef = useRef<string | null>(null);
@@ -171,6 +172,8 @@ function App() {
     }, []);
 
     const clearChat = () => {
+        streamAbortControllerRef.current?.abort();
+        streamAbortControllerRef.current = null;
         syncedQueueRef.current?.clear();
         stopSpeaking(); // Stop any ongoing speech
         setVisibleMessages([]); // Clear messages from UI
@@ -181,11 +184,15 @@ function App() {
     };
 
     const handleStopSpeaking = () => {
+        streamAbortControllerRef.current?.abort();
+        streamAbortControllerRef.current = null;
         syncedQueueRef.current?.clear();
         stopSpeaking();
     };
 
     const handleNewChat = () => {
+        streamAbortControllerRef.current?.abort();
+        streamAbortControllerRef.current = null;
         const newId = createNewConversation(selectedLanguage);
         activeConversationIdRef.current = newId;
         lastHydratedConversationIdRef.current = newId;
@@ -193,6 +200,8 @@ function App() {
     };
 
     const handleSelectConversation = (id: string) => {
+        streamAbortControllerRef.current?.abort();
+        streamAbortControllerRef.current = null;
         activeConversationIdRef.current = id;
         switchConversation(id);
     };
@@ -263,39 +272,85 @@ function App() {
             if (useStreamingText) {
                 upsertAssistantMessage('');
 
+                streamAbortControllerRef.current?.abort();
+                const streamController = new AbortController();
+                streamAbortControllerRef.current = streamController;
+
                 if (useStreamingTTS) {
                     const { SyncedTTSQueue } = await import('./utils/syncedAudio');
                     streamTtsQueue = new SyncedTTSQueue();
                     syncedQueueRef.current = streamTtsQueue;
                 }
 
-                const response = await apiService.textQueryStream(question, selectedLanguage, {
-                    onDelta: (delta) => {
-                        if (!delta) return;
-                        streamedAnswer += delta;
-                        upsertAssistantMessage(streamedAnswer);
-                    },
-                    onSentence: (sentence) => {
-                        const text = sentence?.trim();
-                        if (!text || !streamTtsQueue) return;
-                        if (activeConversationIdRef.current !== conversationId) return;
+                let streamedSentenceCount = 0;
 
-                        // Fire-and-forget queueing keeps stream rendering responsive.
-                        void streamTtsQueue.addSentence(text, selectedLanguage);
-                    },
-                    onDone: (payload) => {
-                        if (payload.answer && payload.answer.length > streamedAnswer.length) {
-                            streamedAnswer = payload.answer;
-                            upsertAssistantMessage(streamedAnswer);
+                try {
+                    const response = await apiService.textQueryStream(
+                        question,
+                        selectedLanguage,
+                        {
+                            onDelta: (delta) => {
+                                if (!delta) return;
+                                streamedAnswer += delta;
+                                upsertAssistantMessage(streamedAnswer);
+                            },
+                            onSentence: (sentence) => {
+                                const text = sentence?.trim();
+                                if (!text || !streamTtsQueue) return;
+                                if (activeConversationIdRef.current !== conversationId) return;
+
+                                streamedSentenceCount += 1;
+                                // Fire-and-forget queueing keeps stream rendering responsive.
+                                void streamTtsQueue.addSentence(text, selectedLanguage);
+                            },
+                            onDone: (payload) => {
+                                if (payload.answer && payload.answer.length > streamedAnswer.length) {
+                                    streamedAnswer = payload.answer;
+                                    upsertAssistantMessage(streamedAnswer);
+                                }
+                            },
+                            onError: (message) => {
+                                console.error('Streaming query error:', message);
+                            },
+                        },
+                        {
+                            signal: streamController.signal,
+                            timeoutMs: 120000,
+                            inactivityTimeoutMs: 45000,
                         }
-                    },
-                    onError: (message) => {
-                        console.error('Streaming query error:', message);
-                    },
-                });
+                    );
 
-                if (!streamedAnswer && response.answer) {
-                    upsertAssistantMessage(response.answer);
+                    if (!streamedAnswer && response.answer) {
+                        streamedAnswer = response.answer;
+                        upsertAssistantMessage(response.answer);
+                    }
+
+                    // If no chunk was spoken during stream, fallback to one-shot TTS.
+                    if (useStreamingTTS && streamTtsQueue && streamedSentenceCount === 0 && streamedAnswer.trim()) {
+                        void streamTtsQueue.addSentence(streamedAnswer.trim(), selectedLanguage);
+                    }
+                } catch (streamError) {
+                    console.error('Streaming path failed, falling back to non-stream query', streamError);
+
+                    const fallbackResponse = await apiService.textQuery(question, selectedLanguage);
+                    streamedAnswer = fallbackResponse.answer;
+                    upsertAssistantMessage(fallbackResponse.answer);
+
+                    // Graceful fallback to full-response TTS if stream path fails.
+                    if (useStreamingTTS) {
+                        if (!streamTtsQueue) {
+                            const { SyncedTTSQueue } = await import('./utils/syncedAudio');
+                            streamTtsQueue = new SyncedTTSQueue();
+                            syncedQueueRef.current = streamTtsQueue;
+                        }
+                        if (fallbackResponse.answer?.trim()) {
+                            void streamTtsQueue.addSentence(fallbackResponse.answer.trim(), selectedLanguage);
+                        }
+                    }
+                } finally {
+                    if (streamAbortControllerRef.current === streamController) {
+                        streamAbortControllerRef.current = null;
+                    }
                 }
             } else {
                 const response = await apiService.textQuery(question, selectedLanguage);

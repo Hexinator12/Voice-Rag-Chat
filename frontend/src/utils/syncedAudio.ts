@@ -5,6 +5,11 @@
 
 import { API_BASE_URL } from '../services/api';
 
+const TTS_REQUEST_TIMEOUT_MS = 45000;
+const TTS_MAX_RETRIES = 2;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export interface WordTiming {
     word: string;
     start: number;  // seconds
@@ -232,16 +237,51 @@ export class SyncedTTSQueue {
      */
     private async speakWithSyncedTTS(text: string, language: string): Promise<void> {
         try {
+            const startedAt = performance.now();
             console.log(`🎤 Requesting synced TTS: "${text.substring(0, 50)}" in ${language}`);
 
-            const response = await fetch(`${API_BASE_URL}/api/tts-synced`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, language })
-            });
+            let response: Response | null = null;
+            let attempt = 0;
 
-            if (!response.ok) {
-                console.error(`❌ Synced TTS request failed: ${response.status}`);
+            while (attempt <= TTS_MAX_RETRIES) {
+                attempt += 1;
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), TTS_REQUEST_TIMEOUT_MS);
+
+                try {
+                    response = await fetch(`${API_BASE_URL}/api/tts-synced`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, language }),
+                        signal: controller.signal,
+                    });
+
+                    if (response.ok) {
+                        break;
+                    }
+
+                    const retryableStatus = response.status === 502 || response.status === 503 || response.status === 504;
+                    if (!retryableStatus || attempt > TTS_MAX_RETRIES) {
+                        console.error(`❌ Synced TTS request failed: ${response.status}`);
+                        return;
+                    }
+
+                    console.warn(`⚠️ Synced TTS retry ${attempt}/${TTS_MAX_RETRIES} after status ${response.status}`);
+                    await sleep(700 * attempt);
+                } catch (error: any) {
+                    const aborted = error?.name === 'AbortError';
+                    if (attempt > TTS_MAX_RETRIES) {
+                        console.error(`❌ Synced TTS ${aborted ? 'timeout' : 'network'} error:`, error);
+                        return;
+                    }
+                    console.warn(`⚠️ Synced TTS retry ${attempt}/${TTS_MAX_RETRIES} after ${aborted ? 'timeout' : 'network error'}`);
+                    await sleep(700 * attempt);
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+            }
+
+            if (!response || !response.ok) {
                 return;
             }
 
@@ -267,6 +307,13 @@ export class SyncedTTSQueue {
             );
 
             this.currentSentenceIndex++;
+
+            console.log(`📊 Synced TTS chunk telemetry`, {
+                chars: text.length,
+                words: data.timings.length,
+                durationMs: Math.round(performance.now() - startedAt),
+                queueRemaining: this.queue.length,
+            });
 
         } catch (error) {
             console.error('❌ Synced TTS error:', error);

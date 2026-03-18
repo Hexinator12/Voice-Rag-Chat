@@ -70,14 +70,21 @@ Definition of done:
 
 ### Phase 3: Production Hardening
 
-- [ ] Add timeout/cancellation handling for stream + TTS requests.
-- [ ] Add retries for chunk TTS transient failures.
-- [ ] Add lightweight telemetry logs for stream start/end and chunk timings.
-- [ ] Add graceful fallback to full-response TTS if stream path fails.
+- [x] Add timeout/cancellation handling for stream + TTS requests.
+- [x] Add retries for chunk TTS transient failures.
+- [x] Add lightweight telemetry logs for stream start/end and chunk timings.
+- [x] Add graceful fallback to full-response TTS if stream path fails.
 
 Definition of done:
 
 - [ ] Stream path stable under Render free-tier cold starts and occasional 502.
+
+### Phase 3 Notes (Current)
+
+- Stream path now supports abort signals, global timeout, and inactivity timeout.
+- Chunked TTS now retries transient failures and applies per-request timeout.
+- Backend stream lifecycle telemetry (`start`, `done`, `error`) added with timings.
+- Frontend falls back to non-stream query + full-response TTS when streaming fails.
 
 ## Event Contract (Draft)
 
