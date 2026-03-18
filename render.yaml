@@ -11,17 +11,32 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: GROQ_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION_NAME
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_MODEL_ID
+        value: eleven_multilingual_v2
+      - key: ELEVENLABS_VOICE_ID_EN
+        value: EXAVITQu4vr4xnSDxMaL
+      - key: ELEVENLABS_VOICE_ID_HI
+        value: EXAVITQu4vr4xnSDxMaL
       - key: GEMINI_API_KEY
         sync: false
       - key: GOOGLE_APPLICATION_CREDENTIALS
         sync: false
     healthCheckPath: /api/health
-  
+
   # Frontend Static Site
   - type: web
     name: voicerag-frontend
     env: static
-    region: oregon
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
