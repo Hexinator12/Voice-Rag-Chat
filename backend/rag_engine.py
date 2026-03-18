@@ -769,6 +769,7 @@ Answer (in {language}):"""
             )
 
             sentence_pattern = re.compile(r"(.+?[.!?]+)(\s|$)", re.DOTALL)
+            max_chunk_chars = 140
 
             for chunk in stream:
                 token = chunk.choices[0].delta.content if chunk.choices and chunk.choices[0].delta else ""
@@ -787,6 +788,17 @@ Answer (in {language}):"""
                     if sentence:
                         yield {"event": "sentence", "text": sentence}
                     sentence_buffer = sentence_buffer[match.end():]
+
+                # If punctuation hasn't arrived yet, flush a sentence-like chunk by length.
+                if len(sentence_buffer) >= max_chunk_chars:
+                    split_at = sentence_buffer.rfind(" ", 0, max_chunk_chars)
+                    if split_at <= 0:
+                        split_at = max_chunk_chars
+
+                    chunk_text = sentence_buffer[:split_at].strip()
+                    if chunk_text:
+                        yield {"event": "sentence", "text": chunk_text}
+                    sentence_buffer = sentence_buffer[split_at:].lstrip()
 
             if sentence_buffer.strip():
                 yield {"event": "sentence", "text": sentence_buffer.strip()}

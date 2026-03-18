@@ -200,6 +200,10 @@ function App() {
     const handleTextQuery = async (question: string) => {
         if (!question.trim() || backendStatus === 'offline') return;
 
+        // Stop any previous playback before starting a new streamed response.
+        syncedQueueRef.current?.clear();
+        stopSpeaking();
+
         setIsProcessing(true);
 
         let conversationId = activeConversationIdRef.current;
@@ -222,8 +226,13 @@ function App() {
 
         try {
             const useStreamingText = (import.meta.env.VITE_STREAMING_TEXT ?? 'true') !== 'false';
+            const useStreamingTTS = (import.meta.env.VITE_STREAMING_TTS ?? 'true') !== 'false';
             const assistantMessageId = (Date.now() + 1).toString();
             let streamedAnswer = '';
+            let streamTtsQueue: {
+                addSentence: (text: string, language: string) => Promise<void>;
+                clear: () => void;
+            } | null = null;
 
             const upsertAssistantMessage = (content: string) => {
                 const stillActive = activeConversationIdRef.current === conversationId;
@@ -254,11 +263,25 @@ function App() {
             if (useStreamingText) {
                 upsertAssistantMessage('');
 
+                if (useStreamingTTS) {
+                    const { SyncedTTSQueue } = await import('./utils/syncedAudio');
+                    streamTtsQueue = new SyncedTTSQueue();
+                    syncedQueueRef.current = streamTtsQueue;
+                }
+
                 const response = await apiService.textQueryStream(question, selectedLanguage, {
                     onDelta: (delta) => {
                         if (!delta) return;
                         streamedAnswer += delta;
                         upsertAssistantMessage(streamedAnswer);
+                    },
+                    onSentence: (sentence) => {
+                        const text = sentence?.trim();
+                        if (!text || !streamTtsQueue) return;
+                        if (activeConversationIdRef.current !== conversationId) return;
+
+                        // Fire-and-forget queueing keeps stream rendering responsive.
+                        void streamTtsQueue.addSentence(text, selectedLanguage);
                     },
                     onDone: (payload) => {
                         if (payload.answer && payload.answer.length > streamedAnswer.length) {

@@ -48,18 +48,25 @@ Definition of done:
 
 Backend/Frontend:
 
-- [ ] Chunk text by punctuation and max length threshold.
-- [ ] Trigger TTS for each completed chunk (sentence-like unit).
-- [ ] Push audio chunks into queue while more text is still arriving.
+- [x] Chunk text by punctuation and max length threshold.
+- [x] Trigger TTS for each completed chunk (sentence-like unit).
+- [x] Push audio chunks into queue while more text is still arriving.
 
 Audio pipeline:
 
 - [ ] Maintain 1-2 chunk prebuffer for smooth playback.
-- [ ] Preserve stop button behavior to cancel queue and pending chunks.
+- [x] Preserve stop button behavior to cancel queue and pending chunks.
 
 Definition of done:
 
-- [ ] AI starts speaking before final response text completes.
+- [x] AI starts speaking before final response text completes.
+
+### Phase 2 Notes (Current)
+
+- SSE `sentence` events now emit on punctuation and length threshold fallback.
+- Frontend queues TTS per incoming sentence chunk during stream.
+- Existing stop button continues to cancel active queue/playback.
+- Prebuffer tuning is intentionally left for Phase 3 hardening.
 
 ### Phase 3: Production Hardening
 
