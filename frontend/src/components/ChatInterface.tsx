@@ -34,42 +34,9 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
         });
     };
 
-    // Render message content with word highlighting for synced audio
+    // Voice sync stays enabled, but visual word highlighting is disabled.
     const renderMessageContent = (message: Message) => {
-        if (message.type !== 'assistant' || message.highlightedWordIndex === undefined) {
-            return message.content;
-        }
-
-        // Split into words and highlight the current one
-        const words = message.content.split(/(\s+)/); // Keep whitespace
-        let wordIndex = 0;
-
-        return words.map((segment, i) => {
-            if (segment.trim().length === 0) {
-                // Whitespace - just return it
-                return <span key={i}>{segment}</span>;
-            }
-
-            const isHighlighted = wordIndex === message.highlightedWordIndex;
-            wordIndex++;
-
-            return (
-                <span
-                    key={i}
-                    className={isHighlighted ? 'highlighted-word' : ''}
-                    style={isHighlighted ? {
-                        backgroundColor: '#ffd700',
-                        color: '#000',
-                        padding: '2px 4px',
-                        borderRadius: '3px',
-                        fontWeight: 'bold',
-                        transition: 'all 0.1s ease'
-                    } : {}}
-                >
-                    {segment}
-                </span>
-            );
-        });
+        return message.content;
     };
 
     return (

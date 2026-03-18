@@ -106,9 +106,11 @@ function App() {
         loadLanguages();
         checkBackendHealth(); // Initial visible check
 
+        const pollIntervalMs = API_BASE_URL.includes('.onrender.com') ? 30000 : 5000;
+
         const interval = setInterval(() => {
             checkBackendHealth(true); // Silent poll
-        }, 5000);
+        }, pollIntervalMs);
 
         return () => clearInterval(interval);
     }, []);
@@ -138,7 +140,9 @@ function App() {
         } catch (error) {
             // Only log errors on initial check to avoid console spam
             if (!silent) console.error('Backend health check failed:', error);
-            setBackendStatus('offline');
+            if (!silent) {
+                setBackendStatus('offline');
+            }
         }
     };
 

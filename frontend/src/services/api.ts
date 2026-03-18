@@ -46,12 +46,23 @@ export interface Language {
     name: string;
 }
 
+const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 90000);
+const RETRY_DELAY_MS = 2500;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isRetryableError = (error: any): boolean => {
+    const status = error?.response?.status;
+    const code = error?.code;
+    return status === 502 || status === 503 || status === 504 || code === 'ECONNABORTED' || code === 'ERR_NETWORK';
+};
+
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: 30000, // 30 second timeout
+    timeout: REQUEST_TIMEOUT_MS,
 });
 
 // Add response interceptor for better error diagnosis
@@ -69,11 +80,25 @@ api.interceptors.response.use(
 
 export const apiService = {
     async textQuery(question: string, language: string = 'English'): Promise<QueryResponse> {
-        const response = await api.post<QueryResponse>('/api/query', {
-            question,
-            language,
-        });
-        return response.data;
+        try {
+            const response = await api.post<QueryResponse>('/api/query', {
+                question,
+                language,
+            });
+            return response.data;
+        } catch (error: any) {
+            if (!isRetryableError(error)) {
+                throw error;
+            }
+
+            // One retry helps during Render cold-start or transient gateway restarts.
+            await sleep(RETRY_DELAY_MS);
+            const retryResponse = await api.post<QueryResponse>('/api/query', {
+                question,
+                language,
+            });
+            return retryResponse.data;
+        }
     },
 
     async voiceQuery(audioBlob: Blob, language: string = 'auto'): Promise<VoiceQueryResponse> {
@@ -81,16 +106,36 @@ export const apiService = {
         formData.append('audio', audioBlob, 'recording.wav');
         formData.append('language', language);
 
-        const response = await axios.post<VoiceQueryResponse>(
-            `${API_BASE_URL}/api/voice-query`,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+        try {
+            const response = await axios.post<VoiceQueryResponse>(
+                `${API_BASE_URL}/api/voice-query`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    timeout: REQUEST_TIMEOUT_MS,
+                }
+            );
+            return response.data;
+        } catch (error: any) {
+            if (!isRetryableError(error)) {
+                throw error;
             }
-        );
-        return response.data;
+
+            await sleep(RETRY_DELAY_MS);
+            const retryResponse = await axios.post<VoiceQueryResponse>(
+                `${API_BASE_URL}/api/voice-query`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    timeout: REQUEST_TIMEOUT_MS,
+                }
+            );
+            return retryResponse.data;
+        }
     },
 
     async getSupportedLanguages(): Promise<Language[]> {
