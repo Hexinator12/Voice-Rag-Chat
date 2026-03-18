@@ -32,14 +32,21 @@ app = FastAPI(
 )
 
 # CORS middleware
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://voicerag-frontend.onrender.com",
+    "https://voice-rag.onrender.com",
+]
+
+# Optional override for deployment environments.
+frontend_url = os.getenv("FRONTEND_URL", "").strip()
+if frontend_url and frontend_url not in allowed_origins:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    # Allow local dev and production domains
-    allow_origins=[
-        "http://localhost:5173", 
-        "http://localhost:3000",
-        "https://voice-rag.onrender.com"  # Add your Production Frontend URL here
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
