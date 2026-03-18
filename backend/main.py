@@ -2,6 +2,7 @@
 FastAPI Backend for Multilingual Voice RAG System
 """
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -166,7 +167,12 @@ async def text_query(query: TextQuery):
         session_id = "default_session"
         
         # Process query with conversation memory
-        result = engine.query(query.question, query.language, session_id=session_id)
+        result = await run_in_threadpool(
+            engine.query,
+            query.question,
+            query.language,
+            session_id,
+        )
         
         return QueryResponse(
             question=result['question'],
@@ -199,13 +205,22 @@ async def voice_query(
             shutil.copyfileobj(audio.file, temp_file)
         
         # Process voice
-        original_text, english_text, detected_lang = processor.process_voice_query(temp_path)
+        original_text, english_text, detected_lang = await run_in_threadpool(
+            processor.process_voice_query,
+            temp_path,
+            language,
+        )
         
         # Use detected language if auto
         query_language = detected_lang if language == "auto" else language
         
         # Query RAG system with English text
-        result = engine.query(english_text, query_language, session_id="default_session")
+        result = await run_in_threadpool(
+            engine.query,
+            english_text,
+            query_language,
+            "default_session",
+        )
         
         return VoiceQueryResponse(
             original_text=original_text,

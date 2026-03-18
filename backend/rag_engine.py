@@ -79,12 +79,17 @@ class RAGEngine:
             print("⚠️ GROQ_API_KEY not found. LLM features will be disabled.")
             self.groq_client = None
 
-        # Initialize Sentence Transformers for embeddings (768 dimensions)
-        # Using all-mpnet-base-v2 for superior semantic understanding of educational content
+        # Initialize Sentence Transformers for embeddings.
+        # Render free instances are memory constrained; use a lighter default there.
         try:
             from sentence_transformers import SentenceTransformer
-            self.embedding_model = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
-            print("✅ Sentence Transformers embeddings initialized (768D - all-mpnet-base-v2)")
+            render_env = os.getenv("RENDER", "").lower() == "true"
+            model_name = os.getenv(
+                "EMBEDDING_MODEL_NAME",
+                "sentence-transformers/all-MiniLM-L6-v2" if render_env else "sentence-transformers/all-mpnet-base-v2",
+            )
+            self.embedding_model = SentenceTransformer(model_name)
+            print(f"✅ Sentence Transformers embeddings initialized ({model_name})")
         except Exception as e:
             print(f"❌ Failed to initialize embeddings: {e}")
             raise
