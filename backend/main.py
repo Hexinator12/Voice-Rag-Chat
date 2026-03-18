@@ -161,7 +161,7 @@ async def health_check():
 async def text_query(query: TextQuery):
     """Handle text-based queries with conversation memory"""
     try:
-        engine = get_rag_engine()
+        engine = await run_in_threadpool(get_rag_engine)
 
         # Use a default session ID (in production, this would come from user authentication)
         session_id = "default_session"
@@ -195,8 +195,8 @@ async def voice_query(
     # Save uploaded audio file
     temp_path = None
     try:
-        engine = get_rag_engine()
-        processor = get_voice_processor()
+        engine = await run_in_threadpool(get_rag_engine)
+        processor = await run_in_threadpool(get_voice_processor)
 
         # Create temporary file
         suffix = Path(audio.filename).suffix or '.wav'
