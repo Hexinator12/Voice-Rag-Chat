@@ -14,8 +14,6 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from backend.rag_engine import RAGEngine
-from backend.voice_processor import VoiceProcessor  # Re-enabled with SpeechRecognition
 # from backend.tts_service import tts_service  # Google Cloud TTS (requires billing)
 from backend.edge_tts_service import edge_tts_service
 from backend.elevenlabs_tts_service import elevenlabs_tts_service
@@ -94,11 +92,12 @@ class FeedbackRequest(BaseModel):
     comment: Optional[str] = None
 
 
-def get_rag_engine() -> RAGEngine:
+def get_rag_engine():
     """Lazily initialize the RAG engine with the workspace dataset."""
     global rag_engine
 
     if rag_engine is None:
+        from backend.rag_engine import RAGEngine
         print("⏳ Initializing RAG Engine...")
         rag_engine = RAGEngine(data_path=str(DATA_PATH))
         print("✅ RAG Engine ready!")
@@ -106,11 +105,12 @@ def get_rag_engine() -> RAGEngine:
     return rag_engine
 
 
-def get_voice_processor() -> VoiceProcessor:
+def get_voice_processor():
     """Lazily initialize voice processing for audio queries."""
     global voice_processor
 
     if voice_processor is None:
+        from backend.voice_processor import VoiceProcessor
         voice_processor = VoiceProcessor()
 
     return voice_processor
