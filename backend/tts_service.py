@@ -15,8 +15,31 @@ class TTSService:
         # or service account key file
         try:
             self.client = texttospeech.TextToSpeechClient()
-            self.enabled = True
-            print("✅ Google Cloud TTS initialized successfully")
+            # Test if TTS is actually working (check billing)
+            try:
+                test_input = texttospeech.SynthesisInput(text="test")
+                test_voice = texttospeech.VoiceSelectionParams(
+                    language_code='en-US',
+                    name='en-US-Standard-A'
+                )
+                test_config = texttospeech.AudioConfig(
+                    audio_encoding=texttospeech.AudioEncoding.MP3
+                )
+                # Try a test synthesis
+                self.client.synthesize_speech(
+                    input=test_input,
+                    voice=test_voice,
+                    audio_config=test_config
+                )
+                self.enabled = True
+                print("✅ Google Cloud TTS initialized and verified successfully")
+            except Exception as test_error:
+                if "BILLING_DISABLED" in str(test_error) or "403" in str(test_error):
+                    print("⚠️ Google Cloud TTS requires billing to be enabled")
+                    print("   Voice will fall back to browser TTS (free)")
+                    self.enabled = False
+                else:
+                    raise test_error
         except Exception as e:
             print(f"⚠️ Google Cloud TTS not available: {e}")
             print("   Voice will fall back to browser TTS")

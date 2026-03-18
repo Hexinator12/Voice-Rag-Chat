@@ -348,6 +348,24 @@ header {
   box-shadow: 0 0 16px #ef4444, 0 0 32px rgba(239, 68, 68, 0.5);
 }
 
+.status-dot.elevenlabs {
+  width: auto;
+  height: auto;
+  animation: none;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.status-indicator.elevenlabs-status {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.status-indicator.elevenlabs-status:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -572,6 +590,18 @@ main {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -1006,36 +1036,96 @@ footer {
 /* Stop Speaking Container (TTS) */
 .stop-speaking-container {
   position: fixed;
-  /* Changed to fixed for better visibility */
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 900;
-  background: rgba(25, 25, 50, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 8px 20px;
-  border-radius: 30px;
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+  backdrop-filter: blur(16px);
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: 1.5px solid rgba(139, 92, 246, 0.4);
   display: flex;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: slideUp 0.3s ease-out;
+  gap: 14px;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2), 0 0 60px rgba(236, 72, 153, 0.15);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+.speaking-animation {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+}
 
+.speaking-animation .wave {
+  width: 3px;
+  height: 4px;
+  background: linear-gradient(180deg, #8b5cf6 0%, #ec4899 100%);
+  border-radius: 2px;
+  animation: soundWave 0.6s ease-in-out infinite;
+}
+
+.speaking-animation .wave:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.speaking-animation .wave:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.speaking-animation .wave:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes soundWave {
+  0%, 100% {
+    height: 4px;
+    opacity: 0.6;
+  }
+  50% {
+    height: 14px;
+    opacity: 1;
+  }
+}
+
+.speaking-indicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse 2s ease-in-out infinite;
+  white-space: nowrap;
+}
 
 .stop-speaking-btn {
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  background: #ff4444;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   margin: 0;
-  box-shadow: none;
+  white-space: nowrap;
+  font-family: inherit;
 }
 
 .stop-speaking-btn:hover {
-  transform: none;
-  background: #ff2222;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.stop-speaking-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 /* Hides default TextInput components styles to use App.css overrides */

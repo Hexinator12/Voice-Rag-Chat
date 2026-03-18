@@ -24,3 +24,6 @@ SpeechRecognition==3.14.5
 # Utilities
 requests==2.31.0
 aiofiles==23.2.1
+deep-translator==1.11.4
+edge-tts==6.1.19
+elevenlabs==1.7.0

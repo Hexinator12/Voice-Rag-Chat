@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChatInterface, Message } from './components/ChatInterface';
 import { TextInput } from './components/TextInput';
 import { VoiceInput } from './components/VoiceInput';
 import { ConversationSidebar } from './components/ConversationSidebar';
-import { apiService, Language } from './services/api';
+import { apiService, Language, API_BASE_URL } from './services/api';
 import { stopSpeaking } from './utils/speech';
 import { useConversations } from './hooks/useConversations';
 import './App.css';
@@ -16,6 +16,11 @@ function App() {
     const [languages, setLanguages] = useState<Language[]>([]);
     const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [elevenlabsStatus, setElevenlabsStatus] = useState<any>(null);
+    const syncedQueueRef = useRef<{ clear: () => void } | null>(null);
+    const messagesRef = useRef<Message[]>([]);
+    const activeConversationIdRef = useRef<string | null>(null);
+    const lastHydratedConversationIdRef = useRef<string | null>(null);
     // Sidebar open by default on desktop, closed on mobile
     const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
 
@@ -37,28 +42,51 @@ function App() {
     const {
         conversations,
         activeConversation,
+        activeConversationId,
         createNewConversation,
         switchConversation,
-        updateCurrentConversation,
+        updateConversationById,
         deleteConversation,
         searchConversations
     } = useConversations();
 
-    // Sync messages with active conversation
+    // Sync messages only when user actually switches to a different conversation.
+    // Avoid re-hydrating on every in-place conversation object update.
     useEffect(() => {
+        activeConversationIdRef.current = activeConversationId;
+
+        if (activeConversationId === lastHydratedConversationIdRef.current) {
+            return;
+        }
+
         if (activeConversation) {
+            messagesRef.current = activeConversation.messages;
             setMessages(activeConversation.messages);
         } else {
+            messagesRef.current = [];
             setMessages([]);
         }
-    }, [activeConversation]);
 
-    // Save messages to active conversation
-    useEffect(() => {
-        if (messages.length > 0) {
-            updateCurrentConversation(messages);
+        lastHydratedConversationIdRef.current = activeConversationId;
+    }, [activeConversationId, activeConversation]);
+
+    const setVisibleMessages = (nextMessages: Message[]) => {
+        messagesRef.current = nextMessages;
+        setMessages(nextMessages);
+    };
+
+    const persistConversationMessages = (
+        conversationId: string,
+        nextMessages: Message[],
+        language: string,
+        updateVisible: boolean
+    ) => {
+        if (updateVisible) {
+            setVisibleMessages(nextMessages);
         }
-    }, [messages, updateCurrentConversation]);
+
+        updateConversationById(conversationId, nextMessages, language);
+    };
 
     // Listen for TTS events
     useEffect(() => {
@@ -114,19 +142,68 @@ function App() {
         }
     };
 
+    // Fetch ElevenLabs subscription status periodically
+    useEffect(() => {
+        const fetchElevenlabsStatus = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/elevenlabs-status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.status) {
+                        setElevenlabsStatus(data.status);
+                    }
+                }
+            } catch (error) {
+                // Silent fail - only for optional display
+            }
+        };
+
+        // Check immediately
+        fetchElevenlabsStatus();
+
+        // Check every 60 seconds (to avoid frequent API calls)
+        const interval = setInterval(fetchElevenlabsStatus, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
     const clearChat = () => {
+        syncedQueueRef.current?.clear();
         stopSpeaking(); // Stop any ongoing speech
-        setMessages([]); // Clear messages from UI
+        setVisibleMessages([]); // Clear messages from UI
         // If there's an active conversation, clear its messages too
-        if (activeConversation) {
-            updateCurrentConversation([]);
+        if (activeConversationIdRef.current) {
+            updateConversationById(activeConversationIdRef.current, [], selectedLanguage);
         }
+    };
+
+    const handleStopSpeaking = () => {
+        syncedQueueRef.current?.clear();
+        stopSpeaking();
+    };
+
+    const handleNewChat = () => {
+        const newId = createNewConversation(selectedLanguage);
+        activeConversationIdRef.current = newId;
+        lastHydratedConversationIdRef.current = newId;
+        setVisibleMessages([]);
+    };
+
+    const handleSelectConversation = (id: string) => {
+        activeConversationIdRef.current = id;
+        switchConversation(id);
     };
 
     const handleTextQuery = async (question: string) => {
         if (!question.trim() || backendStatus === 'offline') return;
 
         setIsProcessing(true);
+
+        let conversationId = activeConversationIdRef.current;
+        if (!conversationId) {
+            conversationId = createNewConversation(selectedLanguage);
+            activeConversationIdRef.current = conversationId;
+            lastHydratedConversationIdRef.current = conversationId;
+        }
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -136,7 +213,8 @@ function App() {
             language: selectedLanguage,
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        const userMessages = [...messagesRef.current, userMessage];
+        persistConversationMessages(conversationId, userMessages, selectedLanguage, true);
 
         try {
             const response = await apiService.textQuery(question, selectedLanguage);
@@ -149,7 +227,9 @@ function App() {
                 language: selectedLanguage,
             };
 
-            setMessages(prev => [...prev, assistantMessage]);
+            const stillActive = activeConversationIdRef.current === conversationId;
+            const assistantMessages = [...(stillActive ? messagesRef.current : userMessages), assistantMessage];
+            persistConversationMessages(conversationId, assistantMessages, selectedLanguage, stillActive);
         } catch (error) {
             console.error('Error querying backend:', error);
         } finally {
@@ -162,6 +242,13 @@ function App() {
 
         setIsProcessing(true);
 
+        let conversationId = activeConversationIdRef.current;
+        if (!conversationId) {
+            conversationId = createNewConversation(selectedLanguage);
+            activeConversationIdRef.current = conversationId;
+            lastHydratedConversationIdRef.current = conversationId;
+        }
+
         const userMessage: Message = {
             id: Date.now().toString(),
             type: 'user',
@@ -171,56 +258,68 @@ function App() {
             isVoice: true,
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        const userMessages = [...messagesRef.current, userMessage];
+        persistConversationMessages(conversationId, userMessages, selectedLanguage, true);
 
         try {
             // Get full response from backend
             const response = await apiService.textQuery(transcript, selectedLanguage);
 
-            // Create assistant message with empty content initially
+            // Create assistant message with the full content
             const assistantMessageId = (Date.now() + 1).toString();
             const assistantMessage: Message = {
                 id: assistantMessageId,
                 type: 'assistant',
-                content: '', // Start empty
+                content: response.answer,
                 timestamp: new Date(),
                 language: selectedLanguage,
+                highlightedWordIndex: undefined
             };
 
-            setMessages(prev => [...prev, assistantMessage]);
+            const stillActive = activeConversationIdRef.current === conversationId;
+            const assistantMessages = [...(stillActive ? messagesRef.current : userMessages), assistantMessage];
+            persistConversationMessages(conversationId, assistantMessages, selectedLanguage, stillActive);
 
-            // Import streaming utilities
-            const { TextStreamer, TTSQueue } = await import('./utils/streaming');
+            // Stop loading as soon as text response is available.
+            // Voice playback can continue independently.
+            setIsProcessing(false);
 
-            // Set up TTS queue
-            const ttsLanguageMap: { [key: string]: string } = {
-                'English': 'en-US',
-                'Hindi': 'hi-IN'
-            };
-            const ttsLanguage = ttsLanguageMap[selectedLanguage] || 'en-US';
-            const ttsQueue = new TTSQueue(ttsLanguage);
+            // Import synced audio utilities
+            const { SyncedTTSQueue } = await import('./utils/syncedAudio');
 
-            // Stream the response word by word
-            const streamer = new TextStreamer(response.answer, {
-                onWord: (_word: string, fullText: string) => {
-                    // Update message content with accumulated text
-                    setMessages(prev => prev.map(msg =>
-                        msg.id === assistantMessageId
-                            ? { ...msg, content: fullText }
-                            : msg
-                    ));
-                },
-                onSentenceComplete: (sentence: string) => {
-                    // Speak each sentence as it completes
-                    ttsQueue.addSentence(sentence);
-                },
-                onComplete: () => {
-                    setIsProcessing(false);
-                },
-                wordsPerSecond: 5 // Slower to match voice better
+            syncedQueueRef.current?.clear();
+
+            // Create synced TTS queue
+            const syncedQueue = new SyncedTTSQueue();
+            syncedQueueRef.current = syncedQueue;
+
+            // Set up word highlighting callback
+            syncedQueue.setWordUpdateCallback((wordIndex: number) => {
+                if (activeConversationIdRef.current !== conversationId) {
+                    return;
+                }
+
+                setVisibleMessages(messagesRef.current.map(msg =>
+                    msg.id === assistantMessageId
+                        ? { ...msg, highlightedWordIndex: wordIndex }
+                        : msg
+                ));
             });
 
-            streamer.start();
+            // Add the full response to the queue for synced playback
+            await syncedQueue.addSentence(response.answer, selectedLanguage);
+
+            if (syncedQueueRef.current === syncedQueue) {
+                syncedQueueRef.current = null;
+            }
+
+            if (activeConversationIdRef.current === conversationId) {
+                setVisibleMessages(messagesRef.current.map(msg =>
+                    msg.id === assistantMessageId
+                        ? { ...msg, highlightedWordIndex: undefined }
+                        : msg
+                ));
+            }
 
         } catch (error) {
             console.error('Error processing voice query:', error);
@@ -233,12 +332,9 @@ function App() {
             {/* Conversation Sidebar */}
             <ConversationSidebar
                 conversations={conversations}
-                activeConversationId={activeConversation?.id || null}
-                onNewChat={() => {
-                    createNewConversation(selectedLanguage);
-                    setMessages([]);
-                }}
-                onSelectConversation={switchConversation}
+                activeConversationId={activeConversationId}
+                onNewChat={handleNewChat}
+                onSelectConversation={handleSelectConversation}
                 onDeleteConversation={deleteConversation}
                 onSearch={searchConversations}
                 isOpen={sidebarOpen}
@@ -271,6 +367,15 @@ function App() {
                                     {backendStatus === 'offline' && 'Offline'}
                                 </span>
                             </div>
+
+                            {elevenlabsStatus && (
+                                <div className="status-indicator elevenlabs-status">
+                                    <span className="status-dot elevenlabs">🎤</span>
+                                    <span title={`${elevenlabsStatus.characters_used} / ${elevenlabsStatus.character_limit} characters used`}>
+                                        {elevenlabsStatus.characters_remaining.toLocaleString()} chars left
+                                    </span>
+                                </div>
+                            )}
 
                             {messages.length > 0 && (
                                 <button
@@ -307,9 +412,9 @@ function App() {
                                 <p>Ask me anything about UIT (Unitedworld Institute of Technology) - admissions, programs, faculty, facilities, and more!</p>
 
                                 <div className="example-questions">
-                                    <div className="example-question" onClick={() => handleTextQuery("What are the admission requirements for B.Tech IT?")}>
+                                    <div className="example-question" onClick={() => handleTextQuery("What are the admission requirements for B.Tech CSE?")}>
                                         <div className="icon">📚</div>
-                                        <div className="text">What are the admission requirements for B.Tech IT?</div>
+                                        <div className="text">What are the admission requirements for B.Tech CSE?</div>
                                     </div>
                                     <div className="example-question" onClick={() => handleTextQuery("Tell me about hostel facilities")}>
                                         <div className="icon">🏠</div>
@@ -346,15 +451,21 @@ function App() {
 
                         {isSpeaking && (
                             <div className="stop-speaking-container">
+                                <div className="speaking-animation">
+                                    <div className="wave"></div>
+                                    <div className="wave"></div>
+                                    <div className="wave"></div>
+                                </div>
+                                <span className="speaking-indicator">
+                                    🎵 AI is speaking...
+                                </span>
                                 <button
                                     className="stop-speaking-btn"
-                                    onClick={stopSpeaking}
+                                    onClick={handleStopSpeaking}
+                                    title="Stop the AI voice"
                                 >
-                                    🔇 Stop Speaking
+                                    ⏹️ Stop
                                 </button>
-                                <span className="speaking-indicator">
-                                    AI is speaking...
-                                </span>
                             </div>
                         )}
 

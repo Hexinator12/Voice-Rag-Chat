@@ -1,4 +1,6 @@
 // Professional Text-to-Speech using Google Cloud TTS
+import { API_BASE_URL } from '../services/api';
+
 // Global audio instance to track current playback
 let currentAudio: HTMLAudioElement | null = null;
 let isSpeaking = false;
@@ -19,7 +21,7 @@ export const speakText = async (text: string, language: string = 'en-US') => {
         console.log('🔊 Requesting TTS for:', text.substring(0, 50) + '...', 'Language:', languageName);
 
         // Call backend TTS API
-        const response = await fetch('http://localhost:8000/api/tts', {
+        const response = await fetch(`${API_BASE_URL}/api/tts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -89,34 +91,64 @@ export const speakText = async (text: string, language: string = 'en-US') => {
 const fallbackBrowserTTS = (text: string, language: string) => {
     if ('speechSynthesis' in window) {
         console.log('⚠️ Falling back to browser TTS');
-        window.speechSynthesis.cancel();
+        
+        // Ensure synthesis is ready
+        const speak = () => {
+            window.speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = language;
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.9;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = language;
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.9;
 
-        utterance.onstart = () => {
-            isSpeaking = true;
-            window.dispatchEvent(new CustomEvent('tts-started'));
+            utterance.onstart = () => {
+                isSpeaking = true;
+                window.dispatchEvent(new CustomEvent('tts-started'));
+                console.log('🔊 Browser TTS started');
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                window.dispatchEvent(new CustomEvent('tts-ended'));
+                console.log('✅ Browser TTS finished');
+            };
+
+            utterance.onerror = (e) => {
+                console.error('Browser TTS error:', e);
+                isSpeaking = false;
+                window.dispatchEvent(new CustomEvent('tts-ended'));
+            };
+
+            // Try to find a better voice
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const voice = voices.find(v => v.lang.startsWith(language.split('-')[0]));
+                if (voice) {
+                    utterance.voice = voice;
+                    console.log('🎤 Using voice:', voice.name);
+                }
+            }
+
+            window.speechSynthesis.speak(utterance);
         };
 
-        utterance.onend = () => {
-            isSpeaking = false;
-            window.dispatchEvent(new CustomEvent('tts-ended'));
-        };
-
-        // Try to find a better voice
+        // Load voices if not already loaded
         const voices = window.speechSynthesis.getVoices();
-        const voice = voices.find(v => v.lang.startsWith(language.split('-')[0]));
-        if (voice) {
-            utterance.voice = voice;
+        if (voices.length > 0) {
+            speak();
+        } else {
+            // Wait for voices to load
+            window.speechSynthesis.onvoiceschanged = () => {
+                speak();
+            };
+            // Fallback timeout in case voices don't load
+            setTimeout(speak, 100);
         }
-
-        window.speechSynthesis.speak(utterance);
+        
         return true;
     }
+    console.error('❌ Browser TTS not supported');
     return false;
 };
 

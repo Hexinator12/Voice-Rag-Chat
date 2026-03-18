@@ -25,7 +25,7 @@ This project presents a comprehensive implementation of a Retrieval-Augmented Ge
 **Key Contributions:**
 
 - ✅ **High Accuracy RAG Implementation**: Achieves 95%+ accuracy on institutional data using semantic search and context-aware response generation
-- ✅ **Multilingual Voice Interface**: Supports English and Hindi with voice input (Web Speech API) and output (Google Cloud TTS)
+- ✅ **Multilingual Voice Interface**: Supports English and Hindi with voice input (Web Speech API) and output (Microsoft Edge TTS - FREE)
 - ✅ **Ultra-Fast Response Generation**: Sub-2-second responses using Groq's optimized inference (up to 300 tokens/sec)
 - ✅ **Smart Context Filtering**: Custom optimization reducing LLM context by 50% for targeted queries while maintaining accuracy
 - ✅ **Production-Ready Architecture**: Cloud-native, scalable design with Qdrant vector database, FastAPI backend, and React frontend
@@ -101,7 +101,7 @@ Educational institutions face challenges in providing timely, accurate informati
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  Voice Services                                           │  │
-│  │  - Google Cloud TTS (Premium voices)                     │  │
+│  │  - Microsoft Edge TTS (FREE, neural voices)              │  │
 │  │  - Browser TTS Fallback                                  │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -114,8 +114,8 @@ Educational institutions face challenges in providing timely, accurate informati
 ┌────────────────────────┴────────────────────────────────────────┐
 │                  External Services Layer                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │ Qdrant Cloud │  │  Groq API    │  │  Google TTS  │         │
-│  │  (Vectors)   │  │  (LLM)       │  │  (Voice)     │         │
+│  │ Qdrant Cloud │  │  Groq API    │  │  Edge TTS    │         │
+│  │  (Vectors)   │  │  (LLM)       │  │  (Voice-FREE)│         │
 │  └──────────────┘  └──────────────┘  └──────────────┘         │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -140,7 +140,8 @@ Educational institutions face challenges in providing timely, accurate informati
 - **Key Components**:
   - `main.py`: FastAPI application with CORS, endpoints, health checks
   - `rag_engine.py`: Core RAG implementation with Groq integration
-  - `tts_service.py`: Text-to-speech service management
+  - `edge_tts_service.py`: Microsoft Edge TTS service (FREE)
+  - `tts_service.py`: Legacy Google Cloud TTS (optional)
   - `voice_processor.py`: Speech recognition handling
   - `feedback_service.py`: User feedback collection system
 
@@ -293,18 +294,20 @@ The system uses a carefully curated and structured dataset containing 136 knowle
   - Efficient inference
   - Open-source (Apache 2.0 license)
 
-#### 5. **Google Cloud Text-to-Speech**
+#### 5. **Microsoft Edge Text-to-Speech**
 
-- **Why**: Premium voice quality with multiple language support
+- **Why**: FREE, high-quality neural voices with no API keys or billing required
 - **Use Case**: Converting text responses to natural speech
 - **Configuration**:
-  - Voice types: Wavenet, Studio (premium)
-  - Languages: English, Hindi
+  - Voice types: Neural voices (AriaNeural, SwaraNeural)
+  - Languages: English, Hindi (100+ languages supported)
   - Fallback: Browser TTS API
 - **Benefits**:
-  - Natural, human-like voices
+  - Completely FREE - no API keys, no billing, no quotas
+  - Natural, human-like neural voices
   - Low latency
   - High-quality audio output
+  - Word-level timing for synchronized text highlighting
 
 ### Frontend Technologies
 
@@ -421,9 +424,9 @@ The system uses a carefully curated and structured dataset containing 136 knowle
 ```python
 1. Check TTS preference
 2. If enabled:
-   - Use Google Cloud TTS (premium)
+   - Use Microsoft Edge TTS (FREE, neural voices)
    - Fallback to browser TTS if unavailable
-3. Stream audio to frontend
+3. Stream audio to frontend with word-level timing
 ```
 
 ### Optimization Techniques
@@ -445,7 +448,8 @@ Voice-RAG/
 │   ├── __init__.py
 │   ├── main.py                    # FastAPI app, CORS, endpoints
 │   ├── rag_engine.py              # Core RAG + Groq + Qdrant integration
-│   ├── tts_service.py             # Google Cloud TTS service
+│   ├── edge_tts_service.py        # Microsoft Edge TTS service (FREE)
+│   ├── tts_service.py             # Legacy Google Cloud TTS (optional)
 │   ├── voice_processor.py         # Speech recognition
 │   └── feedback_service.py        # User feedback collection
 ├── frontend/
@@ -505,7 +509,7 @@ Voice-RAG/
 
 - **Groq API Key** - Get from [console.groq.com](https://console.groq.com) (completely free, no credit card)
 - **Qdrant Cloud** - Create cluster at [cloud.qdrant.io](https://cloud.qdrant.io) (1GB free)
-- **Google Cloud TTS** - Optional, system works without it (browser TTS fallback)
+- **Microsoft Edge TTS** - Included via `edge-tts` Python package (FREE, no setup required)
 
 ### Quick Start (5 minutes)
 
@@ -558,8 +562,8 @@ QDRANT_URL=https://your-cluster-url.us-east-1-0.aws.cloud.qdrant.io
 QDRANT_API_KEY=your_qdrant_api_key_here
 QDRANT_COLLECTION_NAME=uit_rag
 
-# Optional: Google Cloud TTS (falls back to browser TTS if not provided)
-GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-key.json
+# Note: Microsoft Edge TTS is FREE and requires no API keys!
+# No additional configuration needed for high-quality voice output
 ```
 
 #### Getting API Keys
@@ -579,13 +583,15 @@ GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-key.json
 4. Copy cluster URL and API key from dashboard
 5. Collection will be created automatically by `upload_to_qdrant.py`
 
-**Google Cloud TTS (Optional):**
+**Microsoft Edge TTS (Included - FREE):**
 
-1. Visit https://console.cloud.google.com
-2. Enable Text-to-Speech API
-3. Create service account and download JSON key
-4. Place key file in project root
-5. System works fine without this (uses browser TTS)
+✅ **No setup required!** Microsoft Edge TTS is automatically available:
+
+- Installed via requirements.txt (`edge-tts` package)
+- No API keys, no billing, no quotas
+- High-quality neural voices for English and Hindi
+- Word-level timing for synchronized text highlighting
+- Zero configuration needed - works out of the box!
 
 ### Data Upload (One-time Setup)
 
@@ -827,17 +833,18 @@ Query Processing → RAG Pipeline
     ↓
 Response Generation → LLM
     ↓
-Google Cloud TTS (Primary) ⇄ Browser TTS (Fallback)
+Microsoft Edge TTS (Primary - FREE) ⇄ Browser TTS (Fallback)
     ↓
 User Audio Output
 ```
 
 **Benefits:**
 
-- High-quality output (Google Cloud Wavenet voices)
+- High-quality output (Edge TTS Neural voices)
 - Graceful degradation (browser TTS fallback)
 - Multi-language support
 - Zero-latency local fallback
+- FREE with no API keys required
 
 ### 5. Production-Ready RAG Deployment
 
@@ -1312,7 +1319,7 @@ _Natural voice input and output_
 
 - ⚡ **Response Time** - < 2 seconds average
 - 🎯 **Accuracy** - 95%+ with university data
-- 🔊 **Voice Quality** - Studio/Wavenet (Google Cloud)
+- 🔊 **Voice Quality** - Neural voices (Microsoft Edge TTS - FREE)
 - 💾 **Memory** - ~512MB RAM required
 
 ---
@@ -1348,7 +1355,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Groq for ultra-fast LLM inference with their free API
 - Qdrant for cloud-native vector database
-- Google Cloud for premium TTS services
+- Microsoft for FREE Edge TTS services
 - Sentence Transformers for state-of-the-art embeddings
 - FastAPI for the excellent framework
 - React team for the UI library

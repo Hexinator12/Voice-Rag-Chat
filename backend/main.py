@@ -16,8 +16,14 @@ load_dotenv()
 
 from backend.rag_engine import RAGEngine
 from backend.voice_processor import VoiceProcessor  # Re-enabled with SpeechRecognition
-from backend.tts_service import tts_service  # Google Cloud TTS
+# from backend.tts_service import tts_service  # Google Cloud TTS (requires billing)
+from backend.edge_tts_service import edge_tts_service
+from backend.elevenlabs_tts_service import elevenlabs_tts_service
 from backend.feedback_service import feedback_service  # Feedback system
+
+
+# Prefer ElevenLabs if configured, otherwise fallback to Edge TTS.
+tts_service = elevenlabs_tts_service if elevenlabs_tts_service.enabled else edge_tts_service
 
 
 # Initialize FastAPI app
@@ -44,6 +50,7 @@ app.add_middleware(
 # Initialize RAG engine and voice processor
 rag_engine = None
 voice_processor = None
+DATA_PATH = Path(__file__).resolve().parent.parent / "rag_chunks_with_faculty.json"
 
 # Create uploads directory
 UPLOAD_DIR = Path("uploads")
@@ -69,6 +76,44 @@ class VoiceQueryResponse(BaseModel):
     detected_language: str
     answer: str
     sources: List[Dict[str, Any]]
+
+
+class TTSRequest(BaseModel):
+    text: str
+    language: Optional[str] = "English"
+
+
+class FeedbackRequest(BaseModel):
+    message_id: str
+    rating: str
+    query: str
+    response: str
+    language: str
+    session_id: Optional[str] = None
+    category: Optional[str] = None
+    comment: Optional[str] = None
+
+
+def get_rag_engine() -> RAGEngine:
+    """Lazily initialize the RAG engine with the workspace dataset."""
+    global rag_engine
+
+    if rag_engine is None:
+        print("⏳ Initializing RAG Engine...")
+        rag_engine = RAGEngine(data_path=str(DATA_PATH))
+        print("✅ RAG Engine ready!")
+
+    return rag_engine
+
+
+def get_voice_processor() -> VoiceProcessor:
+    """Lazily initialize voice processing for audio queries."""
+    global voice_processor
+
+    if voice_processor is None:
+        voice_processor = VoiceProcessor()
+
+    return voice_processor
 
 
 @app.on_event("startup")
@@ -98,25 +143,23 @@ async def health_check():
     return {
         "status": "healthy",
         "rag_engine": "initialized" if rag_engine else "not initialized",
-        "voice_processor": "initialized" if voice_processor else "not initialized"
+        "voice_processor": "initialized" if voice_processor else "not initialized",
+        "tts_service": "initialized" if tts_service and tts_service.enabled else "not available",
+        "data_path": str(DATA_PATH.name)
     }
 
 
 @app.post("/api/query", response_model=QueryResponse)
 async def text_query(query: TextQuery):
     """Handle text-based queries with conversation memory"""
-    global rag_engine
-    if not rag_engine:
-        print("⏳ Initializing RAG Engine...")
-        rag_engine = RAGEngine(data_path="data.json")
-        print("✅ RAG Engine ready!")
-    
     try:
+        engine = get_rag_engine()
+
         # Use a default session ID (in production, this would come from user authentication)
         session_id = "default_session"
         
         # Process query with conversation memory
-        result = rag_engine.query(query.question, query.language, session_id=session_id)
+        result = engine.query(query.question, query.language, session_id=session_id)
         
         return QueryResponse(
             question=result['question'],
@@ -136,12 +179,12 @@ async def voice_query(
     language: Optional[str] = Form("auto")
 ):
     """Handle voice-based queries"""
-    if not rag_engine or not voice_processor:
-        raise HTTPException(status_code=503, detail="Services not initialized")
-    
     # Save uploaded audio file
     temp_path = None
     try:
+        engine = get_rag_engine()
+        processor = get_voice_processor()
+
         # Create temporary file
         suffix = Path(audio.filename).suffix or '.wav'
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, dir=UPLOAD_DIR) as temp_file:
@@ -149,13 +192,13 @@ async def voice_query(
             shutil.copyfileobj(audio.file, temp_file)
         
         # Process voice
-        original_text, english_text, detected_lang = voice_processor.process_voice_query(temp_path)
+        original_text, english_text, detected_lang = processor.process_voice_query(temp_path)
         
         # Use detected language if auto
         query_language = detected_lang if language == "auto" else language
         
         # Query RAG system with English text
-        result = rag_engine.query(english_text, query_language)
+        result = engine.query(english_text, query_language, session_id="default_session")
         
         return VoiceQueryResponse(
             original_text=original_text,
@@ -174,7 +217,7 @@ async def voice_query(
         if temp_path and os.path.exists(temp_path):
             try:
                 os.remove(temp_path)
-            except:
+            except OSError:
                 pass
 
 
@@ -189,38 +232,21 @@ async def get_supported_languages():
     }
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-# Import TTS service
-try:
-    from backend.tts_service import tts_service
-except ImportError:
-    print("⚠️ TTS service not available")
-    tts_service = None
-
-
-# TTS Request Model
-class TTSRequest(BaseModel):
-    text: str
-    language: str = "English"
-
-
 @app.post("/api/tts")
 async def text_to_speech(request: TTSRequest):
     """
-    Convert text to speech using Google Cloud TTS
+    Convert text to speech using Microsoft Edge TTS (FREE)
     Returns base64-encoded MP3 audio
     """
     if not tts_service or not tts_service.enabled:
         raise HTTPException(
             status_code=503,
-            detail="TTS service not available. Please configure Google Cloud credentials."
+            detail="TTS service not available. Using browser TTS fallback."
         )
     
     try:
-        audio_base64 = tts_service.synthesize_speech(
+        # Use async version of synthesize_speech
+        audio_base64 = await tts_service.synthesize_speech_async(
             text=request.text,
             language=request.language
         )
@@ -236,20 +262,34 @@ async def text_to_speech(request: TTSRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
 
-# Pydantic model for feedback
-class TTSRequest(BaseModel):
-    text: str
-    language: Optional[str] = "English"
 
-class FeedbackRequest(BaseModel):
-    message_id: str
-    rating: str
-    query: str
-    response: str
-    language: str
-    session_id: Optional[str] = None
-    category: Optional[str] = None
-    comment: Optional[str] = None
+@app.post("/api/tts-synced")
+async def text_to_speech_synced(request: TTSRequest):
+    """
+    Convert text to speech with word-level timing information
+    Returns base64-encoded MP3 audio + word timings for synchronized playback
+    Perfect for highlighting words as they're spoken!
+    """
+    if not tts_service or not tts_service.enabled:
+        raise HTTPException(
+            status_code=503,
+            detail="TTS service not available"
+        )
+    
+    try:
+        # Use the new synced method
+        result = await tts_service.synthesize_speech_with_timings_async(
+            text=request.text,
+            language=request.language
+        )
+        
+        if not result:
+            raise HTTPException(status_code=500, detail="Synced TTS generation failed")
+        
+        return result  # Returns { audio, timings, format }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Synced TTS error: {str(e)}")
 
 # Feedback endpoints
 @app.post("/api/feedback")
@@ -277,3 +317,24 @@ async def get_feedback_stats():
         return feedback_service.get_stats()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/elevenlabs-status")
+async def get_elevenlabs_status():
+    """Get ElevenLabs account subscription and character usage"""
+    try:
+        if elevenlabs_tts_service.enabled:
+            status = elevenlabs_tts_service.get_subscription_status()
+            if status:
+                return {"success": True, "status": status}
+            else:
+                return {"success": False, "error": "Could not fetch subscription status"}
+        else:
+            return {"success": False, "error": "ElevenLabs not configured"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

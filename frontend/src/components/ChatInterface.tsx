@@ -8,6 +8,7 @@ export interface Message {
     timestamp: Date;
     language?: string;
     isVoice?: boolean;
+    highlightedWordIndex?: number;  // For synced audio word highlighting
 }
 
 interface ChatInterfaceProps {
@@ -30,6 +31,44 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
         return date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit'
+        });
+    };
+
+    // Render message content with word highlighting for synced audio
+    const renderMessageContent = (message: Message) => {
+        if (message.type !== 'assistant' || message.highlightedWordIndex === undefined) {
+            return message.content;
+        }
+
+        // Split into words and highlight the current one
+        const words = message.content.split(/(\s+)/); // Keep whitespace
+        let wordIndex = 0;
+
+        return words.map((segment, i) => {
+            if (segment.trim().length === 0) {
+                // Whitespace - just return it
+                return <span key={i}>{segment}</span>;
+            }
+
+            const isHighlighted = wordIndex === message.highlightedWordIndex;
+            wordIndex++;
+
+            return (
+                <span
+                    key={i}
+                    className={isHighlighted ? 'highlighted-word' : ''}
+                    style={isHighlighted ? {
+                        backgroundColor: '#ffd700',
+                        color: '#000',
+                        padding: '2px 4px',
+                        borderRadius: '3px',
+                        fontWeight: 'bold',
+                        transition: 'all 0.1s ease'
+                    } : {}}
+                >
+                    {segment}
+                </span>
+            );
         });
     };
 
@@ -71,7 +110,7 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
 
                         <div className={`message-bubble ${message.type}`}>
                             <div className="message-text">
-                                {message.content}
+                                {renderMessageContent(message)}
                             </div>
                             {message.type === 'assistant' && (
                                 <div className="message-decoration">

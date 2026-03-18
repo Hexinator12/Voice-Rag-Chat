@@ -1,12 +1,78 @@
 // Hook for managing conversations
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRef } from 'react';
 import { conversationStorage, Conversation, Message } from '../services/storage';
 
 export function useConversations() {
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
     const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+    const activeConversationIdRef = useRef<string | null>(null);
+
+    const sortByUpdatedAtDesc = (items: Conversation[]) => {
+        return [...items].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    };
+
+    const generateConversationId = () => {
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+            return crypto.randomUUID();
+        }
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    };
+
+    const upsertConversation = useCallback((
+        conversationId: string,
+        messages: Message[],
+        language: string = 'English'
+    ) => {
+        setConversations(prev => {
+            let updatedTarget = false;
+
+            const updated = prev.map(conv => {
+                if (conv.id === conversationId) {
+                    updatedTarget = true;
+
+                    let title = conv.title;
+                    if (title === 'New Chat' && messages.length > 0) {
+                        const firstUserMsg = messages.find(m => m.type === 'user');
+                        if (firstUserMsg) {
+                            title = conversationStorage.generateTitle(firstUserMsg.content);
+                        }
+                    }
+
+                    return {
+                        ...conv,
+                        messages,
+                        title,
+                        language: conv.language || language,
+                        updatedAt: new Date()
+                    };
+                }
+                return conv;
+            });
+
+            if (!updatedTarget) {
+                const firstUserMsg = messages.find(m => m.type === 'user');
+                const title = firstUserMsg
+                    ? conversationStorage.generateTitle(firstUserMsg.content)
+                    : 'New Chat';
+
+                updated.unshift({
+                    id: conversationId,
+                    title,
+                    messages,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    language
+                });
+            }
+
+            const sorted = sortByUpdatedAtDesc(updated);
+            conversationStorage.saveConversations(sorted);
+            return sorted;
+        });
+    }, []);
 
     // Load conversations on mount
     useEffect(() => {
@@ -16,9 +82,14 @@ export function useConversations() {
         // Set most recent as active if exists
         if (loaded.length > 0 && !activeConversationId) {
             setActiveConversationId(loaded[0].id);
+            activeConversationIdRef.current = loaded[0].id;
             setActiveConversation(loaded[0]);
         }
     }, []);
+
+    useEffect(() => {
+        activeConversationIdRef.current = activeConversationId;
+    }, [activeConversationId]);
 
     // Update active conversation when ID changes
     useEffect(() => {
@@ -33,7 +104,7 @@ export function useConversations() {
     // Create new conversation
     const createNewConversation = useCallback((language: string = 'English'): string => {
         const newConv: Conversation = {
-            id: Date.now().toString(),
+            id: generateConversationId(),
             title: 'New Chat',
             messages: [],
             createdAt: new Date(),
@@ -44,6 +115,7 @@ export function useConversations() {
         conversationStorage.saveConversation(newConv);
         setConversations(prev => [newConv, ...prev]);
         setActiveConversationId(newConv.id);
+        activeConversationIdRef.current = newConv.id;
 
         return newConv.id;
     }, []);
@@ -51,46 +123,29 @@ export function useConversations() {
     // Switch to a different conversation
     const switchConversation = useCallback((id: string) => {
         setActiveConversationId(id);
+        activeConversationIdRef.current = id;
     }, []);
 
     // Update current conversation with new messages
     const updateCurrentConversation = useCallback((messages: Message[]) => {
-        if (!activeConversationId) {
-            // Create new conversation if none active
-            const newId = createNewConversation();
-            setActiveConversationId(newId);
+        let convId = activeConversationIdRef.current;
+
+        if (!convId) {
+            // Create new conversation if none is active yet
+            convId = createNewConversation(messages[0]?.language || 'English');
+            activeConversationIdRef.current = convId;
         }
 
-        const convId = activeConversationId || Date.now().toString();
+        upsertConversation(convId, messages, messages[0]?.language || 'English');
+    }, [createNewConversation, upsertConversation]);
 
-        setConversations(prev => {
-            const updated = prev.map(conv => {
-                if (conv.id === convId) {
-                    // Generate title from first user message if still "New Chat"
-                    let title = conv.title;
-                    if (title === 'New Chat' && messages.length > 0) {
-                        const firstUserMsg = messages.find(m => m.type === 'user');
-                        if (firstUserMsg) {
-                            title = conversationStorage.generateTitle(firstUserMsg.content);
-                        }
-                    }
-
-                    const updatedConv = {
-                        ...conv,
-                        messages,
-                        title,
-                        updatedAt: new Date()
-                    };
-
-                    conversationStorage.saveConversation(updatedConv);
-                    return updatedConv;
-                }
-                return conv;
-            });
-
-            return updated;
-        });
-    }, [activeConversationId, createNewConversation]);
+    const updateConversationById = useCallback((
+        conversationId: string,
+        messages: Message[],
+        language: string = 'English'
+    ) => {
+        upsertConversation(conversationId, messages, language);
+    }, [upsertConversation]);
 
     // Delete a conversation
     const deleteConversation = useCallback((id: string) => {
@@ -102,8 +157,10 @@ export function useConversations() {
             const remaining = conversations.filter(c => c.id !== id);
             if (remaining.length > 0) {
                 setActiveConversationId(remaining[0].id);
+                activeConversationIdRef.current = remaining[0].id;
             } else {
                 setActiveConversationId(null);
+                activeConversationIdRef.current = null;
             }
         }
     }, [activeConversationId, conversations]);
@@ -119,6 +176,7 @@ export function useConversations() {
         conversationStorage.clearAll();
         setConversations([]);
         setActiveConversationId(null);
+        activeConversationIdRef.current = null;
         setActiveConversation(null);
     }, []);
 
@@ -129,6 +187,7 @@ export function useConversations() {
         createNewConversation,
         switchConversation,
         updateCurrentConversation,
+        updateConversationById,
         deleteConversation,
         searchConversations,
         clearAllConversations

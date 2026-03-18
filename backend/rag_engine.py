@@ -17,6 +17,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from dotenv import load_dotenv
 import warnings
 import re
+from deep_translator import GoogleTranslator
 
 # Suppress noisy warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -232,6 +233,25 @@ class RAGEngine:
         
         return retrieved_docs
 
+    def _detect_and_translate(self, query: str, language: str) -> str:
+        """
+        Detect if query needs translation and translate to English for better search results
+        Returns: translated query (or original if already in English)
+        """
+        # If user explicitly selected Hindi or query contains Hindi characters, translate
+        if language == "Hindi" or any('\u0900' <= char <= '\u097F' for char in query):
+            try:
+                print(f"  🔤 Translating Hindi query to English for better search...")
+                translator = GoogleTranslator(source='hi', target='en')
+                translated = translator.translate(query)
+                print(f"     Original (Hindi): {query}")
+                print(f"     Translated (English): {translated}")
+                return translated
+            except Exception as e:
+                print(f"  ⚠️  Translation failed ({e}), using original query")
+                return query
+        
+        return query
     
     def _check_needs_clarification(self, query: str, context_docs: List[Dict[str, Any]], conversation_history: List[Dict] = None) -> tuple[bool, str]:
         """
@@ -296,9 +316,12 @@ class RAGEngine:
                 has_general_answer = False
                 if context_docs:
                     top_doc = context_docs[0]
+                    top_metadata = top_doc.get('metadata', {})
+                    top_score = top_doc.get('distance', top_doc.get('score', 0))
+                    top_program = top_metadata.get('program', top_metadata.get('program_title'))
                     # If top document is "ALL" or "ALL_UIT" and has a high score (>0.55), 
                     # we probably don't need clarification
-                    if top_doc.get('score', 0) > 0.55 and top_doc.get('program') in ['ALL', 'ALL_UIT']:
+                    if top_score > 0.55 and top_program in ['ALL', 'ALL_UIT']:
                         has_general_answer = True
 
                 # If no program context AND no good general answer, ask for clarification
@@ -620,10 +643,14 @@ Answer (in {language}):"""
         else:
             search_query = question
         
-        # Search for relevant documents using the (possibly reconstructed) query
-        relevant_docs = self.search(search_query, n_results=3)
+        # IMPORTANT: Translate Hindi queries to English for better search results
+        # The vector database contains English documents, so we search in English
+        translated_query = self._detect_and_translate(search_query, language)
         
-        # Generate response with conversation context
+        # Search for relevant documents using the translated query
+        relevant_docs = self.search(translated_query, n_results=3)
+        
+        # Generate response with conversation context (in the requested language)
         answer = self.generate_response(question, relevant_docs, language, history)
         
         # Save to conversation memory

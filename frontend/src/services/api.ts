@@ -11,7 +11,7 @@ const getApiUrl = () => {
     return url;
 };
 
-const API_BASE_URL = getApiUrl();
+export const API_BASE_URL = getApiUrl();
 
 export interface TextQueryRequest {
     question: string;
