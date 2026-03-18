@@ -25,7 +25,7 @@ This project presents a comprehensive implementation of a Retrieval-Augmented Ge
 **Key Contributions:**
 
 - ✅ **High Accuracy RAG Implementation**: Achieves 95%+ accuracy on institutional data using semantic search and context-aware response generation
-- ✅ **Multilingual Voice Interface**: Supports English and Hindi with voice input (Web Speech API) and output (Microsoft Edge TTS - FREE)
+- ✅ **Multilingual Voice Interface**: Supports English and Hindi with voice input (Web Speech API) and natural voice output (ElevenLabs primary + Microsoft Edge TTS fallback)
 - ✅ **Ultra-Fast Response Generation**: Sub-2-second responses using Groq's optimized inference (up to 300 tokens/sec)
 - ✅ **Smart Context Filtering**: Custom optimization reducing LLM context by 50% for targeted queries while maintaining accuracy
 - ✅ **Production-Ready Architecture**: Cloud-native, scalable design with Qdrant vector database, FastAPI backend, and React frontend
@@ -101,8 +101,9 @@ Educational institutions face challenges in providing timely, accurate informati
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  Voice Services                                           │  │
-│  │  - Microsoft Edge TTS (FREE, neural voices)              │  │
-│  │  - Browser TTS Fallback                                  │  │
+│  │  - ElevenLabs TTS (Primary)                              │  │
+│  │  - Microsoft Edge TTS (Automatic Fallback)               │  │
+│  │  - Word-level synced audio highlighting                  │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  Conversation Memory                                      │  │
@@ -114,8 +115,8 @@ Educational institutions face challenges in providing timely, accurate informati
 ┌────────────────────────┴────────────────────────────────────────┐
 │                  External Services Layer                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │ Qdrant Cloud │  │  Groq API    │  │  Edge TTS    │         │
-│  │  (Vectors)   │  │  (LLM)       │  │  (Voice-FREE)│         │
+│  │ Qdrant Cloud │  │  Groq API    │  │ ElevenLabs   │         │
+│  │  (Vectors)   │  │  (LLM)       │  │ + Edge TTS   │         │
 │  └──────────────┘  └──────────────┘  └──────────────┘         │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -140,8 +141,9 @@ Educational institutions face challenges in providing timely, accurate informati
 - **Key Components**:
   - `main.py`: FastAPI application with CORS, endpoints, health checks
   - `rag_engine.py`: Core RAG implementation with Groq integration
-  - `edge_tts_service.py`: Microsoft Edge TTS service (FREE)
-  - `tts_service.py`: Legacy Google Cloud TTS (optional)
+  - `elevenlabs_tts_service.py`: ElevenLabs TTS service (primary)
+  - `edge_tts_service.py`: Microsoft Edge TTS service (automatic fallback)
+  - `tts_service.py`: Legacy Google Cloud TTS (optional/legacy)
   - `voice_processor.py`: Speech recognition handling
   - `feedback_service.py`: User feedback collection system
 
@@ -294,20 +296,20 @@ The system uses a carefully curated and structured dataset containing 136 knowle
   - Efficient inference
   - Open-source (Apache 2.0 license)
 
-#### 5. **Microsoft Edge Text-to-Speech**
+#### 5. **Text-to-Speech Stack (ElevenLabs + Edge Fallback)**
 
-- **Why**: FREE, high-quality neural voices with no API keys or billing required
-- **Use Case**: Converting text responses to natural speech
+- **Why**: Premium natural voice quality with resilient fallback
+- **Use Case**: Converting text responses to speech with synchronized word highlighting
 - **Configuration**:
-  - Voice types: Neural voices (AriaNeural, SwaraNeural)
-  - Languages: English, Hindi (100+ languages supported)
-  - Fallback: Browser TTS API
+  - Primary provider: ElevenLabs (`ELEVENLABS_API_KEY`)
+  - Model: `eleven_multilingual_v2` (configurable)
+  - Language voices: English and Hindi voice IDs (configurable)
+  - Fallback provider: Microsoft Edge TTS when ElevenLabs is unavailable
 - **Benefits**:
-  - Completely FREE - no API keys, no billing, no quotas
-  - Natural, human-like neural voices
-  - Low latency
-  - High-quality audio output
-  - Word-level timing for synchronized text highlighting
+  - Natural human-like output quality (ElevenLabs)
+  - Reliable availability due to automatic fallback (Edge TTS)
+  - Word-level timing support for synchronized text highlighting
+  - No frontend changes required when fallback is triggered
 
 ### Frontend Technologies
 
@@ -424,8 +426,8 @@ The system uses a carefully curated and structured dataset containing 136 knowle
 ```python
 1. Check TTS preference
 2. If enabled:
-   - Use Microsoft Edge TTS (FREE, neural voices)
-   - Fallback to browser TTS if unavailable
+  - Use ElevenLabs TTS (primary)
+  - Auto-fallback to Microsoft Edge TTS when needed
 3. Stream audio to frontend with word-level timing
 ```
 
@@ -448,7 +450,8 @@ Voice-RAG/
 │   ├── __init__.py
 │   ├── main.py                    # FastAPI app, CORS, endpoints
 │   ├── rag_engine.py              # Core RAG + Groq + Qdrant integration
-│   ├── edge_tts_service.py        # Microsoft Edge TTS service (FREE)
+│   ├── elevenlabs_tts_service.py  # ElevenLabs TTS service (primary)
+│   ├── edge_tts_service.py        # Microsoft Edge TTS fallback
 │   ├── tts_service.py             # Legacy Google Cloud TTS (optional)
 │   ├── voice_processor.py         # Speech recognition
 │   └── feedback_service.py        # User feedback collection
@@ -467,15 +470,15 @@ Voice-RAG/
 │   │   │   └── useConversations.ts # Conversation state hook
 │   │   ├── utils/
 │   │   │   ├── speech.ts          # Speech recognition utils
-│   │   │   └── streaming.ts       # Response streaming utils
+│   │   │   ├── streaming.ts       # Response streaming utils
+│   │   │   └── syncedAudio.ts     # Word-level synced TTS playback
 │   │   ├── App.tsx                # Root component
 │   │   └── main.tsx               # Entry point
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── vite.config.ts
-├── data/
-│   ├── rag_chunks_with_faculty.json  # Primary dataset (136 chunks)
-│   └── data.md                       # Data documentation
+├── rag_chunks_with_faculty.json      # Primary dataset (136 chunks)
+├── data.md                           # Data documentation
 ├── logs/                              # Application logs
 ├── models/                            # Downloaded models (excluded from git)
 │   └── vosk-model-small-en-us-0.15/  # Offline speech recognition
@@ -509,7 +512,8 @@ Voice-RAG/
 
 - **Groq API Key** - Get from [console.groq.com](https://console.groq.com) (completely free, no credit card)
 - **Qdrant Cloud** - Create cluster at [cloud.qdrant.io](https://cloud.qdrant.io) (1GB free)
-- **Microsoft Edge TTS** - Included via `edge-tts` Python package (FREE, no setup required)
+- **ElevenLabs API Key** - Optional for premium natural voice output
+- **Microsoft Edge TTS** - Automatic fallback via `edge-tts` package (FREE)
 
 ### Quick Start (5 minutes)
 
@@ -562,8 +566,13 @@ QDRANT_URL=https://your-cluster-url.us-east-1-0.aws.cloud.qdrant.io
 QDRANT_API_KEY=your_qdrant_api_key_here
 QDRANT_COLLECTION_NAME=uit_rag
 
-# Note: Microsoft Edge TTS is FREE and requires no API keys!
-# No additional configuration needed for high-quality voice output
+# Optional (recommended): ElevenLabs for natural premium voices
+ELEVENLABS_API_KEY=sk_your_elevenlabs_key_here
+ELEVENLABS_MODEL_ID=eleven_multilingual_v2
+ELEVENLABS_VOICE_ID_EN=EXAVITQu4vr4xnSDxMaL
+ELEVENLABS_VOICE_ID_HI=EXAVITQu4vr4xnSDxMaL
+
+# Edge TTS fallback works automatically when ElevenLabs is not configured/available
 ```
 
 #### Getting API Keys
@@ -583,15 +592,20 @@ QDRANT_COLLECTION_NAME=uit_rag
 4. Copy cluster URL and API key from dashboard
 5. Collection will be created automatically by `upload_to_qdrant.py`
 
-**Microsoft Edge TTS (Included - FREE):**
+**ElevenLabs (Optional, Recommended):**
 
-✅ **No setup required!** Microsoft Edge TTS is automatically available:
+1. Visit https://elevenlabs.io
+2. Create account and generate API key
+3. Add `ELEVENLABS_API_KEY` to `.env`
+4. (Optional) Set voice IDs for English/Hindi
+
+**Microsoft Edge TTS (Fallback - FREE):**
+
+✅ No setup required. If ElevenLabs is unavailable, the backend automatically uses Edge TTS.
 
 - Installed via requirements.txt (`edge-tts` package)
 - No API keys, no billing, no quotas
-- High-quality neural voices for English and Hindi
-- Word-level timing for synchronized text highlighting
-- Zero configuration needed - works out of the box!
+- Provides reliable fallback for voice output
 
 ### Data Upload (One-time Setup)
 
@@ -633,6 +647,9 @@ curl http://localhost:8000/api/health
 curl -X POST http://localhost:8000/api/query \
   -H "Content-Type: application/json" \
   -d '{"question": "What B.Tech programs does UIT offer?", "language": "English"}'
+
+# Check ElevenLabs subscription/character usage (if configured)
+curl http://localhost:8000/api/elevenlabs-status
 
 # Should return JSON with answer and sources
 
