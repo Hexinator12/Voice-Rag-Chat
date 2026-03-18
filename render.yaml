@@ -7,7 +7,10 @@ services:
     plan: free
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port 10000
+    startCommand: >
+      sh -c "echo [startup] PORT=$PORT &&
+      python -c 'import backend.main; print(\"[startup] app import ok\")' &&
+      exec python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-10000} --log-level info"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
