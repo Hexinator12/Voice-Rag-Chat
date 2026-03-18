@@ -46,6 +46,14 @@ export interface Language {
     name: string;
 }
 
+export interface StreamQueryHandlers {
+    onMeta?: (payload: any) => void;
+    onDelta?: (text: string) => void;
+    onSentence?: (text: string) => void;
+    onDone?: (payload: QueryResponse) => void;
+    onError?: (message: string) => void;
+}
+
 const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 90000);
 const RETRY_DELAY_MS = 2500;
 
@@ -146,5 +154,97 @@ export const apiService = {
     async healthCheck(): Promise<{ status: string }> {
         const response = await api.get<{ status: string }>('/api/health');
         return response.data;
+    },
+
+    async textQueryStream(
+        question: string,
+        language: string = 'English',
+        handlers?: StreamQueryHandlers
+    ): Promise<QueryResponse> {
+        const response = await fetch(`${API_BASE_URL}/api/query-stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question, language }),
+        });
+
+        if (!response.ok || !response.body) {
+            throw new Error(`Streaming request failed: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        let finalResult: QueryResponse | null = null;
+
+        const dispatchEvent = (eventType: string, dataString: string) => {
+            let payload: any = {};
+            try {
+                payload = dataString ? JSON.parse(dataString) : {};
+            } catch {
+                payload = { text: dataString };
+            }
+
+            switch (eventType) {
+                case 'meta':
+                    handlers?.onMeta?.(payload);
+                    break;
+                case 'delta':
+                    handlers?.onDelta?.(payload.text || '');
+                    break;
+                case 'sentence':
+                    handlers?.onSentence?.(payload.text || '');
+                    break;
+                case 'done':
+                    finalResult = {
+                        question,
+                        answer: payload.answer || '',
+                        language: payload.language || language,
+                        sources: payload.sources || [],
+                    };
+                    handlers?.onDone?.(finalResult);
+                    break;
+                case 'error':
+                    handlers?.onError?.(payload.message || 'Streaming error');
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const events = buffer.split('\n\n');
+            buffer = events.pop() || '';
+
+            for (const eventBlock of events) {
+                if (!eventBlock.trim()) continue;
+
+                const lines = eventBlock.split('\n');
+                let eventType = 'message';
+                const dataLines: string[] = [];
+
+                for (const line of lines) {
+                    if (line.startsWith('event:')) {
+                        eventType = line.slice(6).trim();
+                    } else if (line.startsWith('data:')) {
+                        dataLines.push(line.slice(5).trim());
+                    }
+                }
+
+                dispatchEvent(eventType, dataLines.join('\n'));
+            }
+        }
+
+        if (finalResult) {
+            return finalResult;
+        }
+
+        throw new Error('Streaming completed without final result');
     },
 };

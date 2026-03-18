@@ -221,19 +221,74 @@ function App() {
         persistConversationMessages(conversationId, userMessages, selectedLanguage, true);
 
         try {
-            const response = await apiService.textQuery(question, selectedLanguage);
+            const useStreamingText = (import.meta.env.VITE_STREAMING_TEXT ?? 'true') !== 'false';
+            const assistantMessageId = (Date.now() + 1).toString();
+            let streamedAnswer = '';
 
-            const assistantMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                type: 'assistant',
-                content: response.answer,
-                timestamp: new Date(),
-                language: selectedLanguage,
+            const upsertAssistantMessage = (content: string) => {
+                const stillActive = activeConversationIdRef.current === conversationId;
+                const baseMessages = stillActive ? messagesRef.current : userMessages;
+                const existingIndex = baseMessages.findIndex((msg) => msg.id === assistantMessageId);
+
+                let nextMessages: Message[];
+                if (existingIndex >= 0) {
+                    nextMessages = baseMessages.map((msg) =>
+                        msg.id === assistantMessageId ? { ...msg, content } : msg
+                    );
+                } else {
+                    nextMessages = [
+                        ...baseMessages,
+                        {
+                            id: assistantMessageId,
+                            type: 'assistant',
+                            content,
+                            timestamp: new Date(),
+                            language: selectedLanguage,
+                        },
+                    ];
+                }
+
+                persistConversationMessages(conversationId, nextMessages, selectedLanguage, stillActive);
             };
 
-            const stillActive = activeConversationIdRef.current === conversationId;
-            const assistantMessages = [...(stillActive ? messagesRef.current : userMessages), assistantMessage];
-            persistConversationMessages(conversationId, assistantMessages, selectedLanguage, stillActive);
+            if (useStreamingText) {
+                upsertAssistantMessage('');
+
+                const response = await apiService.textQueryStream(question, selectedLanguage, {
+                    onDelta: (delta) => {
+                        if (!delta) return;
+                        streamedAnswer += delta;
+                        upsertAssistantMessage(streamedAnswer);
+                    },
+                    onDone: (payload) => {
+                        if (payload.answer && payload.answer.length > streamedAnswer.length) {
+                            streamedAnswer = payload.answer;
+                            upsertAssistantMessage(streamedAnswer);
+                        }
+                    },
+                    onError: (message) => {
+                        console.error('Streaming query error:', message);
+                    },
+                });
+
+                if (!streamedAnswer && response.answer) {
+                    upsertAssistantMessage(response.answer);
+                }
+            } else {
+                const response = await apiService.textQuery(question, selectedLanguage);
+
+                const assistantMessage: Message = {
+                    id: assistantMessageId,
+                    type: 'assistant',
+                    content: response.answer,
+                    timestamp: new Date(),
+                    language: selectedLanguage,
+                };
+
+                const stillActive = activeConversationIdRef.current === conversationId;
+                const assistantMessages = [...(stillActive ? messagesRef.current : userMessages), assistantMessage];
+                persistConversationMessages(conversationId, assistantMessages, selectedLanguage, stillActive);
+            }
         } catch (error) {
             console.error('Error querying backend:', error);
         } finally {

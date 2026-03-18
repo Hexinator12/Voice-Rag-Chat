@@ -6,7 +6,7 @@ import json
 import os
 import pickle
 import random
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Iterator
 from datetime import datetime
 import numpy as np
 from qdrant_client import QdrantClient
@@ -669,6 +669,142 @@ Answer (in {language}):"""
             "language": language,
             "session_id": session_id
         }
+
+    def stream_query(self, question: str, language: str = "English", session_id: str = "default") -> Iterator[Dict[str, Any]]:
+        """Stream query response as incremental events for SSE consumers."""
+        history = self.memory.get_history(session_id, last_n=5)
+
+        is_followup, reconstructed_query = self._is_followup_answer(question, history)
+        search_query = reconstructed_query if is_followup else question
+
+        translated_query = self._detect_and_translate(search_query, language)
+        relevant_docs = self.search(translated_query, n_results=3)
+
+        yield {
+            "event": "meta",
+            "question": question,
+            "language": language,
+            "sources": relevant_docs,
+        }
+
+        if not is_followup:
+            needs_clarification, clarification_msg = self._check_needs_clarification(question, relevant_docs, history)
+            if needs_clarification:
+                self.memory.add_message(session_id, "user", question)
+                self.memory.add_message(session_id, "assistant", clarification_msg)
+                yield {"event": "delta", "text": clarification_msg}
+                yield {
+                    "event": "done",
+                    "answer": clarification_msg,
+                    "sources": relevant_docs,
+                    "language": language,
+                    "session_id": session_id,
+                }
+                return
+
+        context = "\n\n".join([doc["content"] for doc in relevant_docs])
+
+        language_instructions = {
+            "Hindi": "You MUST answer ONLY in Hindi language. हिंदी में जवाब दें। Do not use any other language.",
+            "English": "You MUST answer ONLY in English language. Do not use any other language.",
+        }
+        lang_instruction = language_instructions.get(language, "Answer in English")
+
+        prompt = f"""You are a friendly student assistant at UIT (Unitedworld Institute of Technology) - the engineering college at Karnavati University.
+
+IMPORTANT: UIT is ONLY for engineering programs. If someone asks about law, management, design, or other non-engineering departments, politely tell them this bot is specifically for UIT engineering students and they should contact the main university office for other programs.
+
+RULES:
+1. LANGUAGE: {lang_instruction}
+2. Talk naturally like a human, not like Wikipedia or a formal document
+3. Give only the KEY POINTS the person needs to know
+4. Keep it brief and conversational - 2-4 sentences maximum
+5. Use the information from Context but say it in a natural, helpful way
+6. Don't use numbered lists or bullet points - just talk normally
+7. If the Context doesn't have relevant info for their question, say you don't have that information
+
+Context:
+{context}
+
+Question: {question}
+
+Give a brief, natural answer with just the key points they need to know.
+
+Answer (in {language}):"""
+
+        if not self.groq_client:
+            answer = self.generate_response(question, relevant_docs, language, history)
+            self.memory.add_message(session_id, "user", question)
+            self.memory.add_message(session_id, "assistant", answer)
+            yield {"event": "delta", "text": answer}
+            yield {
+                "event": "done",
+                "answer": answer,
+                "sources": relevant_docs,
+                "language": language,
+                "session_id": session_id,
+            }
+            return
+
+        full_answer = ""
+        sentence_buffer = ""
+
+        try:
+            stream = self.groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a friendly student helper at UIT (Unitedworld Institute of Technology) - the engineering college at Karnavati University. You ONLY have information about UIT engineering programs (B.Tech in CSE, AIML, Data Science, Cyber Security, ECE). If asked about law, management, design, or other departments, politely clarify that you're specifically for UIT engineering and they should contact the main university office. Talk like a real person helping another student - natural, brief, and to the point. Give only key information they need in 2-4 sentences. No lists, no formal language, just helpful conversation. Use only the provided context."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    },
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.5,
+                max_tokens=250,
+                top_p=0.9,
+                stream=True,
+            )
+
+            sentence_pattern = re.compile(r"(.+?[.!?]+)(\s|$)", re.DOTALL)
+
+            for chunk in stream:
+                token = chunk.choices[0].delta.content if chunk.choices and chunk.choices[0].delta else ""
+                if not token:
+                    continue
+
+                full_answer += token
+                sentence_buffer += token
+                yield {"event": "delta", "text": token}
+
+                while True:
+                    match = sentence_pattern.search(sentence_buffer)
+                    if not match:
+                        break
+                    sentence = match.group(1).strip()
+                    if sentence:
+                        yield {"event": "sentence", "text": sentence}
+                    sentence_buffer = sentence_buffer[match.end():]
+
+            if sentence_buffer.strip():
+                yield {"event": "sentence", "text": sentence_buffer.strip()}
+
+            answer = full_answer.strip() if full_answer.strip() else self.generate_response(question, relevant_docs, language, history)
+
+            self.memory.add_message(session_id, "user", question)
+            self.memory.add_message(session_id, "assistant", answer)
+
+            yield {
+                "event": "done",
+                "answer": answer,
+                "sources": relevant_docs,
+                "language": language,
+                "session_id": session_id,
+            }
+        except Exception as e:
+            yield {"event": "error", "message": str(e)}
     
     def clear_conversation(self, session_id: str = "default"):
         """Clear conversation history for a session"""

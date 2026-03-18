@@ -4,11 +4,13 @@ FastAPI Backend for Multilingual Voice RAG System
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import os
 import tempfile
 import shutil
+import json
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -67,6 +69,12 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 class TextQuery(BaseModel):
     question: str
     language: Optional[str] = "English"
+
+
+class StreamQueryRequest(BaseModel):
+    question: str
+    language: Optional[str] = "English"
+    session_id: Optional[str] = "default_session"
 
 
 class QueryResponse(BaseModel):
@@ -183,6 +191,37 @@ async def text_query(query: TextQuery):
     
     except Exception as e:
         print(f"Error processing query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/query-stream")
+async def text_query_stream(request: StreamQueryRequest):
+    """Stream text query response as Server-Sent Events (SSE)."""
+    try:
+        engine = await run_in_threadpool(get_rag_engine)
+        session_id = request.session_id or "default_session"
+
+        def event_stream():
+            try:
+                for event in engine.stream_query(request.question, request.language or "English", session_id=session_id):
+                    event_type = event.get("event", "message")
+                    payload = {k: v for k, v in event.items() if k != "event"}
+                    yield f"event: {event_type}\n"
+                    yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+            except Exception as e:
+                yield "event: error\n"
+                yield f"data: {json.dumps({'message': str(e)}, ensure_ascii=False)}\n\n"
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 

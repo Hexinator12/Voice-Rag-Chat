@@ -30,19 +30,19 @@ Enable true real-time behavior where the assistant starts speaking while text is
 
 Backend:
 
-- [ ] Add SSE endpoint `POST /api/query-stream`.
-- [ ] Add streaming generation method in RAG layer (yield token/delta events).
-- [ ] Send SSE events: `meta`, `delta`, `sentence`, `done`, `error`.
+- [x] Add SSE endpoint `POST /api/query-stream`.
+- [x] Add streaming generation method in RAG layer (yield token/delta events).
+- [x] Send SSE events: `meta`, `delta`, `sentence`, `done`, `error`.
 
 Frontend:
 
-- [ ] Add stream consumer in API layer.
-- [ ] Update chat message progressively with incoming `delta` chunks.
-- [ ] Keep existing non-stream endpoint as fallback.
+- [x] Add stream consumer in API layer.
+- [x] Update chat message progressively with incoming `delta` chunks.
+- [x] Keep existing non-stream endpoint as fallback.
 
 Definition of done:
 
-- [ ] User sees text appear token-by-token in UI.
+- [x] User sees text appear token-by-token in UI.
 
 ### Phase 2: Incremental TTS Queue (Speak While Generating)
 
