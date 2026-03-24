@@ -495,6 +495,23 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 - ✅ Disappears on open
 - ✅ Mobile friendly
 
+**Status**: ✅ **COMPLETED** (Commit: 38dcbe7, Mar 24 2026)
+
+- Added unreadCount property to Conversation interface for state tracking
+- Badge rendered in ConversationItem with gradient purple background (#667eea → #764ba2)
+- Positioned top-right of conversation item with flex-shrink-0 to prevent overlap
+- Smooth 2s pulsing animation with scale 1 → 1.12 → 1 for attention effect
+- Hover scale effect on avatar now reflects interaction feedback
+- Badge automatically hides when conversation is active or unreadCount is 0
+- Badge capped at '99+' for unread counts exceeding 99
+- **Unread tracking logic**:
+  - `switchConversation` hook clears unreadCount when conversation opened
+  - `incrementConversationUnreadCount` function called when assistant message added to non-active conversation
+  - State management prevents unread increment for currently active conversation
+- Accessibility support with prefers-reduced-motion media query
+- CSS includes glass morphism shadow effects: inset border radius with text shadow
+- Build verified: 99 modules, 0 TypeScript errors, 558ms build time
+
 ---
 
 ## 2.6 📍 Message Grouping by Time
@@ -539,9 +556,9 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 | 2.2               | Skeleton Screens | 1h             | ✅ Complete |
 | 2.3               | Read Status      | 45m            | ✅ Complete |
 | 2.4               | Hover Depth      | 1h             | ✅ Complete |
-| 2.5               | Unread Badge     | 30m            | ⏳ Pending  |
+| 2.5               | Unread Badge     | 30m            | ✅ Complete |
 | 2.6               | Time Grouping    | 45m            | ⏳ Pending  |
-| **Total Phase 2** |                  | **~5.5 hours** | 4/6 Done    |
+| **Total Phase 2** |                  | **~5.5 hours** | 5/6 Done    |
 
 ---
 
@@ -827,7 +844,7 @@ PHASE 2: Polish
 [✅] 2.2 Skeleton Loading Screens
 [✅] 2.3 Read Status Indicators
 [✅] 2.4 Enhanced Hover States
-[ ] 2.5 Unread Badge
+[✅] 2.5 Unread Badge
 [ ] 2.6 Message Time Grouping
 
 PHASE 3: Engagement
