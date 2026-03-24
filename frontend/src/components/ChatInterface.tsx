@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SkeletonLoader } from './SkeletonLoader';
+import { TimeGroupDivider } from './TimeGroupDivider';
 import './ChatInterface.css';
 
 export interface Message {
@@ -49,6 +50,32 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    // Phase 2.6: Determine time group for a message
+    const getTimeGroup = (messageDate: Date): { group: string; label: string } => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        const lastMonth = new Date(today);
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+        const msgDate = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+
+        if (msgDate.getTime() === today.getTime()) {
+            return { group: 'today', label: 'Today' };
+        } else if (msgDate.getTime() === yesterday.getTime()) {
+            return { group: 'yesterday', label: 'Yesterday' };
+        } else if (msgDate >= lastWeek) {
+            return { group: 'lastWeek', label: 'Last 7 Days' };
+        } else if (msgDate >= lastMonth) {
+            return { group: 'lastMonth', label: 'Last Month' };
+        } else {
+            return { group: 'older', label: msgDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: msgDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined }) };
+        }
     };
 
     // Voice sync stays enabled, but visual word highlighting is disabled.
@@ -122,9 +149,41 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
     const shouldShowProcessing =
         !!isProcessing && !(messages.length > 0 && messages[messages.length - 1]?.type === 'assistant');
 
+    // Phase 2.6: Build messages array with time group dividers
+    const messagesWithDividers = messages.reduce((acc, message, index) => {
+        const currentGroup = getTimeGroup(message.timestamp);
+        const previousMessage = index > 0 ? messages[index - 1] : null;
+        const previousGroup = previousMessage ? getTimeGroup(previousMessage.timestamp) : null;
+
+        // Add divider if group changed
+        if (previousGroup === null || previousGroup.group !== currentGroup.group) {
+            acc.push({
+                type: 'divider',
+                id: `divider-${currentGroup.group}-${index}`,
+                label: currentGroup.label,
+                timestamp: message.timestamp
+            });
+        }
+
+        acc.push(message);
+        return acc;
+    }, [] as any[]);
+
     return (
         <div className="chat-messages">
-            {messages.map((message, index) => {
+            {messagesWithDividers.map((item, index) => {
+                // Render time group divider
+                if (item.type === 'divider') {
+                    return (
+                        <TimeGroupDivider
+                            key={item.id}
+                            label={item.label}
+                        />
+                    );
+                }
+
+                // Render regular message
+                const message = item as Message;
                 const fallback = buildFallbackEvidence(message);
                 const effectiveTrustScore = message.trustScore ?? fallback.trustScore;
                 const effectiveEvidence = (message.evidence && message.evidence.length > 0) ? message.evidence : fallback.evidence;
