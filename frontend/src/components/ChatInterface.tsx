@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { TypingIndicator } from './TypingIndicator';
+import { SkeletonLoader } from './SkeletonLoader';
 import './ChatInterface.css';
 
 export interface Message {
@@ -230,7 +230,7 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                         </div>
 
                         <div className="message-bubble assistant">
-                            <TypingIndicator isVisible={true} message="AI is thinking..." />
+                            <SkeletonLoader lines={3} hasShortLine={true} />
                         </div>
                     </div>
                 </div>
