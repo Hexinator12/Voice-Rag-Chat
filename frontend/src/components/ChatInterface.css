@@ -470,3 +470,69 @@
         transform: translateY(0);
     }
 }
+
+/* ✅ Message Status Indicators - Phase 2.3 */
+.message-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0;
+    animation: fadeInStatus 0.3s ease-out forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes fadeInStatus {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-icon {
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    transition: all 0.2s ease;
+}
+
+/* Status color transitions */
+.message-status.status-sending .status-icon {
+    color: #9a9a9a;
+    animation: pulse-status 1.5s ease-in-out infinite;
+}
+
+.message-status.status-sent .status-icon {
+    color: #b3b3b3;
+}
+
+.message-status.status-delivered .status-icon {
+    color: #5a7ba1;
+}
+
+.message-status.status-read .status-icon {
+    color: #2d5a8c;
+    font-weight: 700;
+}
+
+/* Pulsing animation for sending state */
+@keyframes pulse-status {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Hover tooltip effect */
+.status-icon:hover {
+    transform: scale(1.15);
+    filter: brightness(1.1);
+}

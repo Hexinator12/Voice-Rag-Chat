@@ -11,6 +11,9 @@ export interface Message {
     isVoice?: boolean;
     highlightedWordIndex?: number;  // For synced audio word highlighting
     trustScore?: number;
+    // Message delivery status (Phase 2.3)
+    status?: 'sending' | 'sent' | 'delivered' | 'read';
+    statusTimestamp?: Date;
     evidence?: Array<{
         rank: number;
         score: number;
@@ -58,6 +61,22 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
         if (score >= 75) return 'high';
         if (score >= 50) return 'medium';
         return 'low';
+    };
+
+    // Get status display info (Phase 2.3)
+    const getStatusDisplay = (status?: string) => {
+        switch (status) {
+            case 'sending':
+                return { icon: '✓', label: 'Sending...', className: 'status-sending' };
+            case 'sent':
+                return { icon: '✓', label: 'Sent', className: 'status-sent' };
+            case 'delivered':
+                return { icon: '✓✓', label: 'Delivered', className: 'status-delivered' };
+            case 'read':
+                return { icon: '✓✓', label: 'Read', className: 'status-read' };
+            default:
+                return null;
+        }
     };
 
     const buildFallbackEvidence = (message: Message) => {
@@ -156,6 +175,15 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                                 </div>
                             )}
                         </div>
+
+                        {/* Message Status Indicators (Phase 2.3) - User Messages Only */}
+                        {message.type === 'user' && message.status && (
+                            <div className={`message-status ${getStatusDisplay(message.status)?.className}`}>
+                                <span className="status-icon" title={getStatusDisplay(message.status)?.label}>
+                                    {getStatusDisplay(message.status)?.icon}
+                                </span>
+                            </div>
+                        )}
 
                         {message.type === 'assistant' && (effectiveTrustScore !== undefined || effectiveEvidence.length > 0) && (
                             <div className="trust-evidence-panel">
