@@ -150,20 +150,24 @@ export function useConversations() {
     // Delete a conversation
     const deleteConversation = useCallback((id: string) => {
         conversationStorage.deleteConversation(id);
-        setConversations(prev => prev.filter(c => c.id !== id));
 
-        // If deleted conversation was active, switch to another
-        if (id === activeConversationId) {
-            const remaining = conversations.filter(c => c.id !== id);
-            if (remaining.length > 0) {
-                setActiveConversationId(remaining[0].id);
-                activeConversationIdRef.current = remaining[0].id;
-            } else {
-                setActiveConversationId(null);
-                activeConversationIdRef.current = null;
+        setConversations(prev => {
+            const remaining = prev.filter(c => c.id !== id);
+
+            // If deleted conversation was active, switch to another derived from latest state.
+            if (id === activeConversationIdRef.current) {
+                if (remaining.length > 0) {
+                    setActiveConversationId(remaining[0].id);
+                    activeConversationIdRef.current = remaining[0].id;
+                } else {
+                    setActiveConversationId(null);
+                    activeConversationIdRef.current = null;
+                }
             }
-        }
-    }, [activeConversationId, conversations]);
+
+            return remaining;
+        });
+    }, []);
 
     // Search conversations
     const searchConversations = useCallback((query: string): Conversation[] => {

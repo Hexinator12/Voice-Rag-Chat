@@ -12,7 +12,7 @@
 
 **A scalable, multilingual voice-enabled RAG system for university information retrieval**
 
-[Abstract](#-abstract) • [Architecture](#-system-architecture) • [Installation](#-installation) • [Results](#-experimental-results) • [Research](#-research-contributions)
+[Abstract](#-abstract) • [Architecture](#-system-architecture) • [Installation](#-installation) • [New Enhancements](#-new-enhancements-march-2026) • [Results](#-experimental-results) • [Research](#-research-contributions)
 
 </div>
 
@@ -29,8 +29,11 @@ This project presents a comprehensive implementation of a Retrieval-Augmented Ge
 - ✅ **Ultra-Fast Response Generation**: Sub-2-second responses using Groq's optimized inference (up to 300 tokens/sec)
 - ✅ **Smart Context Filtering**: Custom optimization reducing LLM context by 50% for targeted queries while maintaining accuracy
 - ✅ **Production-Ready Architecture**: Cloud-native, scalable design with Qdrant vector database, FastAPI backend, and React frontend
-- ✅ **Conversation Memory**: Session-based context retention for coherent multi-turn dialogues
-- ✅ **Comprehensive Testing**: Validated with 12+ test scenarios across languages and query types
+- ✅ **Secure Session Architecture**: User-scoped, server-owned chat sessions with signed HttpOnly cookies and ownership enforcement
+- ✅ **Conversation Memory Isolation**: Correct new/switch/clear/delete behavior with backend memory alignment
+- ✅ **Evaluation Framework**: Benchmark runner + metrics + before/after reports with multilingual parity tracking
+- ✅ **Premium UI/UX Redesign**: Modern neumorphic interface with cleaner chat experience, improved hierarchy, and faculty-ready visual polish
+- ✅ **Comprehensive Testing**: Faculty scenarios + Playwright integration tests for chat memory isolation
 
 **Impact:** Provides 24/7 accurate information access to students, reducing admission office workload by ~70% and improving student experience with instant, multilingual support.
 
@@ -608,6 +611,89 @@ ELEVENLABS_VOICE_ID_HI=EXAVITQu4vr4xnSDxMaL
 - Provides reliable fallback for voice output
 
 ### Data Upload (One-time Setup)
+
+## 🆕 New Enhancements (March 2026)
+
+### 1) Production-Safe Session & Memory Architecture
+
+The chat memory layer now uses authenticated user-scoped isolation instead of trusting client-generated session IDs.
+
+- Signed `HttpOnly` cookie identity (`SESSION_SIGNING_KEY` based)
+- Server-owned session resolution and mapping
+- Session ownership enforcement per user
+- Backend memory clear endpoint aligned with UI clear chat action
+
+**Security result:** prevents cross-user/session memory leakage and client-side session spoofing.
+
+### 2) Integration Tests for Chat Memory Isolation
+
+Playwright E2E tests now validate full chat-memory lifecycle:
+
+- new chat
+- switch chat
+- clear chat
+- delete chat
+- isolation between conversations
+
+Run:
+
+```bash
+cd frontend
+npm run test:e2e
+```
+
+### 3) Research-Grade Evaluation Framework
+
+An evaluation module was added under `eval/` to benchmark retrieval and generation quality and produce before/after reports.
+
+Added files:
+
+- `eval/benchmark_schema.json`
+- `eval/benchmark_sample.jsonl`
+- `eval/run_benchmark.py`
+- `eval/compare_runs.py`
+- `eval/run_eval.sh`
+
+Tracked metrics:
+
+- retrieval hit@1, hit@3, hit@5
+- answer correctness (exact + token-F1 proxy)
+- hallucination proxy (groundedness threshold)
+- response latency (avg, p50, p95)
+- multilingual parity (EN vs HI gaps)
+
+Run baseline:
+
+```bash
+./eval/run_eval.sh baseline_local http://localhost:8000
+```
+
+Compare two runs:
+
+```bash
+venv/bin/python eval/compare_runs.py \
+  --baseline eval/runs/<baseline_summary>.json \
+  --candidate eval/runs/<candidate_summary>.json
+```
+
+Outputs:
+
+- per-question run artifacts in `eval/runs/`
+- markdown and HTML comparison reports in `eval/reports/`
+
+### 4) UI/UX Upgrade (Faculty Review Focus)
+
+The frontend was redesigned from a generic "AI demo" look to a cleaner, premium interface suitable for academic review demos.
+
+Key improvements:
+
+- Light neumorphic design language with consistent spacing and visual hierarchy
+- Refined chat bubbles, avatars, input controls, and sidebar readability
+- Simplified motion and reduced visual noise for a professional experience
+- Cleaner processing states and improved message interaction flow
+- Better mobile behavior and cross-component style consistency
+
+Result: the system now presents as a polished product experience, not just a prototype chatbot.
 
 ```bash
 # Activate virtual environment

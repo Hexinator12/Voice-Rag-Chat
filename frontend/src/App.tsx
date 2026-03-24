@@ -3,7 +3,7 @@ import { ChatInterface, Message } from './components/ChatInterface';
 import { TextInput } from './components/TextInput';
 import { VoiceInput } from './components/VoiceInput';
 import { ConversationSidebar } from './components/ConversationSidebar';
-import { apiService, Language, API_BASE_URL } from './services/api';
+import { apiService, Language, API_BASE_URL, QueryResponse } from './services/api';
 import { stopSpeaking } from './utils/speech';
 import { useConversations } from './hooks/useConversations';
 import './App.css';
@@ -56,6 +56,12 @@ function App() {
     useEffect(() => {
         activeConversationIdRef.current = activeConversationId;
 
+        // Wait until hook-derived activeConversation catches up with the selected ID.
+        // This avoids hydrating stale messages when ID changes before object resolution.
+        if (activeConversationId && activeConversation?.id !== activeConversationId) {
+            return;
+        }
+
         if (activeConversationId === lastHydratedConversationIdRef.current) {
             return;
         }
@@ -63,6 +69,11 @@ function App() {
         if (activeConversation) {
             messagesRef.current = activeConversation.messages;
             setMessages(activeConversation.messages);
+            if (activeConversation.language) {
+                setSelectedLanguage(prev =>
+                    prev === activeConversation.language ? prev : activeConversation.language
+                );
+            }
         } else {
             messagesRef.current = [];
             setMessages([]);
@@ -179,7 +190,10 @@ function App() {
         setVisibleMessages([]); // Clear messages from UI
         // If there's an active conversation, clear its messages too
         if (activeConversationIdRef.current) {
-            updateConversationById(activeConversationIdRef.current, [], selectedLanguage);
+            const currentId = activeConversationIdRef.current;
+            updateConversationById(currentId, [], selectedLanguage);
+            // Keep backend session memory aligned with cleared UI chat.
+            void apiService.clearSessionMemory(currentId);
         }
     };
 
@@ -235,15 +249,26 @@ function App() {
 
         try {
             const useStreamingText = (import.meta.env.VITE_STREAMING_TEXT ?? 'true') !== 'false';
-            const useStreamingTTS = (import.meta.env.VITE_STREAMING_TTS ?? 'true') !== 'false';
+            // TTS should NOT auto-play on text queries, only on voice queries
+            const useStreamingTTS = false;
             const assistantMessageId = (Date.now() + 1).toString();
             let streamedAnswer = '';
+            let streamedTrustScore: number | undefined;
+            let streamedEvidence: QueryResponse['evidence'] = undefined;
+            let streamedSources: QueryResponse['sources'] = [];
             let streamTtsQueue: {
                 addSentence: (text: string, language: string) => Promise<void>;
                 clear: () => void;
             } | null = null;
 
-            const upsertAssistantMessage = (content: string) => {
+            const upsertAssistantMessage = (
+                content: string,
+                metadata?: {
+                    trustScore?: number;
+                    evidence?: QueryResponse['evidence'];
+                    sources?: QueryResponse['sources'];
+                }
+            ) => {
                 const stillActive = activeConversationIdRef.current === conversationId;
                 const baseMessages = stillActive ? messagesRef.current : userMessages;
                 const existingIndex = baseMessages.findIndex((msg) => msg.id === assistantMessageId);
@@ -262,8 +287,24 @@ function App() {
                             content,
                             timestamp: new Date(),
                             language: selectedLanguage,
+                            trustScore: metadata?.trustScore,
+                            evidence: metadata?.evidence,
+                            sources: metadata?.sources,
                         },
                     ];
+                }
+
+                if (existingIndex >= 0 && metadata) {
+                    nextMessages = nextMessages.map((msg) =>
+                        msg.id === assistantMessageId
+                            ? {
+                                  ...msg,
+                                  trustScore: metadata.trustScore ?? msg.trustScore,
+                                  evidence: metadata.evidence ?? msg.evidence,
+                                                                    sources: metadata.sources ?? msg.sources,
+                              }
+                            : msg
+                    );
                 }
 
                 persistConversationMessages(conversationId, nextMessages, selectedLanguage, stillActive);
@@ -288,6 +329,7 @@ function App() {
                     const response = await apiService.textQueryStream(
                         question,
                         selectedLanguage,
+                        conversationId,
                         {
                             onDelta: (delta) => {
                                 if (!delta) return;
@@ -308,6 +350,15 @@ function App() {
                                     streamedAnswer = payload.answer;
                                     upsertAssistantMessage(streamedAnswer);
                                 }
+
+                                streamedTrustScore = payload.trust_score;
+                                streamedEvidence = payload.evidence;
+                                streamedSources = payload.sources || [];
+                                upsertAssistantMessage(streamedAnswer, {
+                                    trustScore: streamedTrustScore,
+                                    evidence: streamedEvidence,
+                                    sources: streamedSources,
+                                });
                             },
                             onError: (message) => {
                                 console.error('Streaming query error:', message);
@@ -332,9 +383,13 @@ function App() {
                 } catch (streamError) {
                     console.error('Streaming path failed, falling back to non-stream query', streamError);
 
-                    const fallbackResponse = await apiService.textQuery(question, selectedLanguage);
+                    const fallbackResponse = await apiService.textQuery(question, selectedLanguage, conversationId);
                     streamedAnswer = fallbackResponse.answer;
-                    upsertAssistantMessage(fallbackResponse.answer);
+                    upsertAssistantMessage(fallbackResponse.answer, {
+                        trustScore: fallbackResponse.trust_score,
+                        evidence: fallbackResponse.evidence,
+                        sources: fallbackResponse.sources,
+                    });
 
                     // Graceful fallback to full-response TTS if stream path fails.
                     if (useStreamingTTS) {
@@ -353,7 +408,7 @@ function App() {
                     }
                 }
             } else {
-                const response = await apiService.textQuery(question, selectedLanguage);
+                const response = await apiService.textQuery(question, selectedLanguage, conversationId);
 
                 const assistantMessage: Message = {
                     id: assistantMessageId,
@@ -361,6 +416,9 @@ function App() {
                     content: response.answer,
                     timestamp: new Date(),
                     language: selectedLanguage,
+                    trustScore: response.trust_score,
+                    evidence: response.evidence,
+                    sources: response.sources,
                 };
 
                 const stillActive = activeConversationIdRef.current === conversationId;
@@ -400,7 +458,7 @@ function App() {
 
         try {
             // Get full response from backend
-            const response = await apiService.textQuery(transcript, selectedLanguage);
+            const response = await apiService.textQuery(transcript, selectedLanguage, conversationId);
 
             // Create assistant message with the full content
             const assistantMessageId = (Date.now() + 1).toString();
@@ -410,6 +468,9 @@ function App() {
                 content: response.answer,
                 timestamp: new Date(),
                 language: selectedLanguage,
+                trustScore: response.trust_score,
+                evidence: response.evidence,
+                sources: response.sources,
                 highlightedWordIndex: undefined
             };
 

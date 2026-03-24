@@ -16,12 +16,22 @@ export const API_BASE_URL = getApiUrl();
 export interface TextQueryRequest {
     question: string;
     language?: string;
+    session_id?: string;
+    client_conversation_id?: string;
 }
 
 export interface QueryResponse {
     question: string;
     answer: string;
     language: string;
+    trust_score?: number;
+    evidence?: Array<{
+        rank: number;
+        score: number;
+        raw_score: number;
+        snippet: string;
+        metadata: Record<string, any>;
+    }>;
     sources: Array<{
         content: string;
         metadata: Record<string, any>;
@@ -34,6 +44,14 @@ export interface VoiceQueryResponse {
     english_text: string;
     detected_language: string;
     answer: string;
+    trust_score?: number;
+    evidence?: Array<{
+        rank: number;
+        score: number;
+        raw_score: number;
+        snippet: string;
+        metadata: Record<string, any>;
+    }>;
     sources: Array<{
         content: string;
         metadata: Record<string, any>;
@@ -78,6 +96,7 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
     timeout: REQUEST_TIMEOUT_MS,
+    withCredentials: true,
 });
 
 // Add response interceptor for better error diagnosis
@@ -94,11 +113,16 @@ api.interceptors.response.use(
 );
 
 export const apiService = {
-    async textQuery(question: string, language: string = 'English'): Promise<QueryResponse> {
+    async textQuery(
+        question: string,
+        language: string = 'English',
+        clientConversationId?: string
+    ): Promise<QueryResponse> {
         try {
             const response = await api.post<QueryResponse>('/api/query', {
                 question,
                 language,
+                client_conversation_id: clientConversationId,
             });
             return response.data;
         } catch (error: any) {
@@ -111,15 +135,23 @@ export const apiService = {
             const retryResponse = await api.post<QueryResponse>('/api/query', {
                 question,
                 language,
+                client_conversation_id: clientConversationId,
             });
             return retryResponse.data;
         }
     },
 
-    async voiceQuery(audioBlob: Blob, language: string = 'auto'): Promise<VoiceQueryResponse> {
+    async voiceQuery(
+        audioBlob: Blob,
+        language: string = 'auto',
+        clientConversationId?: string
+    ): Promise<VoiceQueryResponse> {
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.wav');
         formData.append('language', language);
+        if (clientConversationId) {
+            formData.append('client_conversation_id', clientConversationId);
+        }
 
         try {
             const response = await axios.post<VoiceQueryResponse>(
@@ -130,6 +162,7 @@ export const apiService = {
                         'Content-Type': 'multipart/form-data',
                     },
                     timeout: REQUEST_TIMEOUT_MS,
+                    withCredentials: true,
                 }
             );
             return response.data;
@@ -147,6 +180,7 @@ export const apiService = {
                         'Content-Type': 'multipart/form-data',
                     },
                     timeout: REQUEST_TIMEOUT_MS,
+                    withCredentials: true,
                 }
             );
             return retryResponse.data;
@@ -163,9 +197,19 @@ export const apiService = {
         return response.data;
     },
 
+    async clearSessionMemory(clientConversationId: string): Promise<void> {
+        try {
+            await api.post('/api/session/clear', { client_conversation_id: clientConversationId });
+        } catch (error) {
+            // Best-effort cleanup; UI should not fail if this endpoint is unavailable.
+            console.warn('Failed to clear backend session memory:', error);
+        }
+    },
+
     async textQueryStream(
         question: string,
         language: string = 'English',
+        clientConversationId?: string,
         handlers?: StreamQueryHandlers,
         options?: StreamQueryOptions
     ): Promise<QueryResponse> {
@@ -214,6 +258,8 @@ export const apiService = {
                         question,
                         answer: payload.answer || '',
                         language: payload.language || language,
+                        trust_score: payload.trust_score,
+                        evidence: payload.evidence || [],
                         sources: payload.sources || [],
                     };
                     handlers?.onDone?.(finalResult);
@@ -232,7 +278,8 @@ export const apiService = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ question, language }),
+                credentials: 'include',
+                body: JSON.stringify({ question, language, client_conversation_id: clientConversationId }),
                 signal: controller.signal,
             });
 

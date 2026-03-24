@@ -9,6 +9,19 @@ export interface Message {
     language?: string;
     isVoice?: boolean;
     highlightedWordIndex?: number;  // For synced audio word highlighting
+    trustScore?: number;
+    evidence?: Array<{
+        rank: number;
+        score: number;
+        raw_score: number;
+        snippet: string;
+        metadata: Record<string, any>;
+    }>;
+    sources?: Array<{
+        content: string;
+        metadata: Record<string, any>;
+        distance: number;
+    }>;
 }
 
 interface ChatInterfaceProps {
@@ -39,9 +52,66 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
         return message.content;
     };
 
+    const getTrustLevel = (score?: number) => {
+        if (score === undefined) return 'unknown';
+        if (score >= 75) return 'high';
+        if (score >= 50) return 'medium';
+        return 'low';
+    };
+
+    const buildFallbackEvidence = (message: Message) => {
+        const sources = message.sources || [];
+        if (sources.length === 0) {
+            return { trustScore: undefined as number | undefined, evidence: [] as NonNullable<Message['evidence']> };
+        }
+
+        const top = sources.slice(0, 3);
+        const confidences = top.map((s) => Math.max(0, Math.min(1, Number(s.distance || 0))));
+        const topConfidence = confidences[0];
+        const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
+
+        const answerTokens = new Set((message.content || '').toLowerCase().split(/\W+/).filter(Boolean));
+        const contextTokens = new Set(
+            top
+                .map((s) => (s.content || '').toLowerCase())
+                .join(' ')
+                .split(/\W+/)
+                .filter(Boolean)
+        );
+        const coverage =
+            answerTokens.size > 0 && contextTokens.size > 0
+                ? [...answerTokens].filter((t) => contextTokens.has(t)).length / answerTokens.size
+                : 0;
+
+        const agreement = confidences.filter((c) => c >= 0.6).length / confidences.length;
+
+        const evidence = top.map((s, idx) => ({
+            rank: idx + 1,
+            score: Number((confidences[idx] * 100).toFixed(2)),
+            raw_score: Number((Number(s.distance || 0)).toFixed(6)),
+            snippet: (s.content || '').slice(0, 280) + ((s.content || '').length > 280 ? '...' : ''),
+            metadata: s.metadata || {},
+        }));
+
+        const trustScore = Number(
+            ((0.55 * topConfidence + 0.25 * avgConfidence + 0.15 * coverage + 0.05 * agreement) * 100).toFixed(2)
+        );
+        return { trustScore, evidence };
+    };
+
+    const shouldShowProcessing =
+        !!isProcessing && !(messages.length > 0 && messages[messages.length - 1]?.type === 'assistant');
+
     return (
         <div className="chat-messages">
-            {messages.map((message, index) => (
+            {messages.map((message, index) => {
+                const fallback = buildFallbackEvidence(message);
+                const effectiveTrustScore = message.trustScore ?? fallback.trustScore;
+                const effectiveEvidence = (message.evidence && message.evidence.length > 0) ? message.evidence : fallback.evidence;
+                const strongEvidence = effectiveEvidence.filter((item) => item.score >= 20);
+                const weakEvidence = effectiveEvidence.filter((item) => item.score < 20);
+
+                return (
                 <div
                     key={message.id}
                     className={`message-wrapper ${message.type}`}
@@ -86,6 +156,54 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                             )}
                         </div>
 
+                        {message.type === 'assistant' && (effectiveTrustScore !== undefined || effectiveEvidence.length > 0) && (
+                            <div className="trust-evidence-panel">
+                                {effectiveTrustScore !== undefined && (
+                                    <div className={`trust-score-chip ${getTrustLevel(effectiveTrustScore)}`}>
+                                        Answer Confidence: {effectiveTrustScore.toFixed(1)}%
+                                    </div>
+                                )}
+
+                                {!!effectiveEvidence.length && (
+                                    <details className="evidence-details">
+                                        <summary>View Evidence ({strongEvidence.length})</summary>
+                                        <div className="evidence-list">
+                                            <div className="evidence-summary">
+                                                {strongEvidence.length} strong source{strongEvidence.length === 1 ? '' : 's'}, {weakEvidence.length} weak source{weakEvidence.length === 1 ? '' : 's'}
+                                            </div>
+
+                                            {strongEvidence.map((item) => (
+                                                <div key={`${message.id}-ev-${item.rank}`} className="evidence-item">
+                                                    <div className="evidence-meta">
+                                                        <span>#{item.rank}</span>
+                                                        <span>{item.score.toFixed(1)}%</span>
+                                                    </div>
+                                                    <p>{item.snippet}</p>
+                                                </div>
+                                            ))}
+
+                                            {!!weakEvidence.length && (
+                                                <details className="weak-evidence-details">
+                                                    <summary>Weak Context ({weakEvidence.length})</summary>
+                                                    <div className="weak-evidence-list">
+                                                        {weakEvidence.map((item) => (
+                                                            <div key={`${message.id}-weak-${item.rank}`} className="evidence-item weak">
+                                                                <div className="evidence-meta">
+                                                                    <span>#{item.rank}</span>
+                                                                    <span>{item.score.toFixed(1)}%</span>
+                                                                </div>
+                                                                <p>{item.snippet}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </details>
+                                            )}
+                                        </div>
+                                    </details>
+                                )}
+                            </div>
+                        )}
+
                         {message.language && message.language !== 'English' && (
                             <div className="language-tag">
                                 🌐 {message.language}
@@ -93,9 +211,10 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                         )}
                     </div>
                 </div>
-            ))}
+                );
+            })}
 
-            {isProcessing && (
+            {shouldShowProcessing && (
                 <div className="message-wrapper assistant processing">
                     <div className="message-avatar">
                         <div className="avatar assistant-avatar">
