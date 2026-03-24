@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { VoiceWaveform } from './VoiceWaveform';
 
 interface VoiceInputProps {
     onTranscript: (text: string, detectedLanguage?: string) => void;
@@ -163,15 +164,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isProcessi
             ) : (
                 <div className="voice-overlay">
                     <div className="voice-content">
-                        <div className="voice-status">Listening...</div>
-
-                        <div className="voice-visualizer">
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                        </div>
+                        <VoiceWaveform isRecording={isListening} />
 
                         <div className="voice-transcript">
                             {transcript || "Speak now..."}
