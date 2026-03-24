@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { TypingIndicator } from './TypingIndicator';
 import './ChatInterface.css';
 
 export interface Message {
@@ -229,11 +230,7 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                         </div>
 
                         <div className="message-bubble assistant">
-                            <div className="typing-indicator">
-                                <span className="typing-dot"></span>
-                                <span className="typing-dot"></span>
-                                <span className="typing-dot"></span>
-                            </div>
+                            <TypingIndicator isVisible={true} message="AI is thinking..." />
                         </div>
                     </div>
                 </div>
