@@ -26,10 +26,14 @@
   --accent-blue: #6b8e99;
   --accent-orange: #8b9ba8;
   
-  /* ✨ Soft Neumorphic Shadows */
+  /* ✨ Soft Neumorphic Shadows - Depth Based */
+  --shadow-base: 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-focus: 0 16px 40px rgba(90, 123, 161, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   --shadow-inset: inset 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-glow-purple: 0 4px 16px rgba(90, 123, 161, 0.15);
   --shadow-glow-pink: 0 4px 16px rgba(122, 143, 158, 0.15);

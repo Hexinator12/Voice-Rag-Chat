@@ -92,11 +92,27 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     align-items: center;
     gap: 0.3rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+@media (hover: hover) {
+    .feedback-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(90, 123, 161, 0.12);
+        background: #dde7f0;
+        border-color: #ccd6e5;
+    }
+}
+
+@media (hover: hover) {
+    .feedback-btn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
 }
 
 .feedback-btn:hover:not(:disabled) {

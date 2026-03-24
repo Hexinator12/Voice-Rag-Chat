@@ -86,7 +86,7 @@
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
@@ -101,14 +101,17 @@
     display: none;
 }
 
-.new-chat-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
+@media (hover: hover) {
+    .new-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(90, 123, 161, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        background: linear-gradient(135deg, #cfd9e8 0%, #d9e3ed 100%);
+    }
 
-.new-chat-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    .new-chat-btn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
 }
 
 /* Conversation List */
@@ -154,7 +157,7 @@
     padding: 0.875rem 1rem;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     margin-bottom: 0.25rem;
     border: 1px solid transparent;
@@ -162,21 +165,23 @@
     -webkit-backdrop-filter: blur(4px);
 }
 
-.conversation-item:hover {
-    background: rgba(240, 245, 250, 0.7);
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    transform: translateX(4px);
+@media (hover: hover) {
+    .conversation-item:hover {
+        background: rgba(240, 245, 250, 0.8);
+        border-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transform: translateX(6px);
+    }
 }
 
 .conversation-item.active {
-    background: linear-gradient(135deg, rgba(212, 225, 240, 0.8) 0%, rgba(224, 233, 244, 0.8) 100%);
-    border-color: rgba(107, 142, 153, 0.4);
-    box-shadow: 0 6px 16px rgba(90, 123, 161, 0.12);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(212, 225, 240, 0.9) 0%, rgba(224, 233, 244, 0.9) 100%);
+    border-color: rgba(107, 142, 153, 0.5);
+    box-shadow: 0 8px 24px rgba(90, 123, 161, 0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .conversation-item.active .conversation-title {
