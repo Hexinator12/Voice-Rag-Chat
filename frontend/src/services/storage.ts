@@ -16,6 +16,7 @@ export interface Conversation {
     createdAt: Date;
     updatedAt: Date;
     language: string;
+    unreadCount?: number;
 }
 
 const STORAGE_KEY = 'voicerag_conversations';

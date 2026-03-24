@@ -124,6 +124,15 @@ export function useConversations() {
     const switchConversation = useCallback((id: string) => {
         setActiveConversationId(id);
         activeConversationIdRef.current = id;
+        
+        // Clear unread count when switching to conversation - Phase 2.5
+        setConversations(prev => 
+            prev.map(conv => 
+                conv.id === id 
+                    ? { ...conv, unreadCount: 0 }
+                    : conv
+            )
+        );
     }, []);
 
     // Update current conversation with new messages
@@ -184,6 +193,17 @@ export function useConversations() {
         setActiveConversation(null);
     }, []);
 
+    // Increment unread count for a conversation - Phase 2.5
+    const incrementConversationUnreadCount = useCallback((conversationId: string) => {
+        setConversations(prev =>
+            prev.map(conv =>
+                conv.id === conversationId && conv.id !== activeConversationIdRef.current
+                    ? { ...conv, unreadCount: (conv.unreadCount || 0) + 1 }
+                    : conv
+            )
+        );
+    }, []);
+
     return {
         conversations,
         activeConversation,
@@ -194,6 +214,7 @@ export function useConversations() {
         updateConversationById,
         deleteConversation,
         searchConversations,
-        clearAllConversations
+        clearAllConversations,
+        incrementConversationUnreadCount
     };
 }

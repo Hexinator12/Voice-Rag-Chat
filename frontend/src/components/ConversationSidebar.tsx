@@ -157,6 +157,14 @@ function ConversationItem({ conversation, isActive, onClick, onDelete, formatTim
                 <div className="conversation-title">{conversation.title}</div>
                 <div className="conversation-time">{formatTime(conversation.updatedAt)}</div>
             </div>
+            
+            {/* Unread Badge - Phase 2.5 */}
+            {conversation.unreadCount && conversation.unreadCount > 0 && !isActive && (
+                <div className="unread-badge">
+                    {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                </div>
+            )}
+            
             <button
                 className="delete-btn"
                 onClick={handleDelete}

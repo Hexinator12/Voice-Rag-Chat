@@ -48,7 +48,8 @@ function App() {
         switchConversation,
         updateConversationById,
         deleteConversation,
-        searchConversations
+        searchConversations,
+        incrementConversationUnreadCount
     } = useConversations();
 
     // Sync messages only when user actually switches to a different conversation.
@@ -292,6 +293,11 @@ function App() {
                             sources: metadata?.sources,
                         },
                     ];
+                    
+                    // Increment unread count for non-active conversation - Phase 2.5
+                    if (!stillActive) {
+                        incrementConversationUnreadCount(conversationId);
+                    }
                 }
 
                 if (existingIndex >= 0 && metadata) {
