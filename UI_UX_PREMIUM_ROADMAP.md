@@ -278,28 +278,44 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 **Description**:
 
 - Apply frosted glass effect to floating panels
-- Used for: evidence panel, link previews, tooltips
+- Used for: message bubbles, avatars, input fields, sidebar items
 - Blur background + semi-transparent backdrop
-- Subtle backdrop-filter effect
+- Subtle backdrop-filter effect with smooth transitions
 
 **Implementation**:
 
 - Add CSS backdrop-filter to message bubbles
-- Create `.glass` utility class
+- Create `.glass` utility class system
 - Apply to evidence panels, floating cards
+- Enhanced hover states with elevated blur
 
 **Files to Modify**:
 
 - ✏️ Modify: `frontend/src/App.css` (add glass utilities)
-- ✏️ Modify: `frontend/src/components/ChatInterface.css` (apply to evidence panel)
-- ✏️ Modify: `frontend/src/components/Message.css` (apply to message bubbles)
+- ✏️ Modify: `frontend/src/components/ChatInterface.css` (apply to message bubbles & avatars)
+- ✏️ Modify: `frontend/src/components/TextInput.css` (apply to input field)
+- ✏️ Modify: `frontend/src/components/ConversationSidebar.css` (apply to sidebar)
 
 **Success Criteria**:
 
-- ✅ Glass effect visible on cards
+- ✅ Glass effect visible on all cards
 - ✅ Readable text over blurred background
 - ✅ No performance degradation
-- ✅ Works on Safari (use -webkit prefix)
+- ✅ Works on Safari with -webkit prefix
+- ✅ Smooth hover/focus animations (0.3s)
+- ✅ Elevated depth on hover (+3px translateY)
+
+**Status**: ✅ **COMPLETED** (Commit: 8e51eb7, Mar 24 2026)
+
+- Frosted glass effect applied to message bubbles (user & assistant)
+- Avatar icons enhanced with backdrop-filter blur + transparency
+- Text input field with glass morphism + depth elevation
+- Conversation sidebar with subtle glass effect & smooth transitions
+- .glass, .glass-subtle, .glass-deep, .glass-hover utility classes created
+- All elements now use rgba backgrounds + backdrop-filter blur (6-10px)
+- Enhanced animations: 0.3s cubic-bezier transitions
+- Safari support with -webkit-backdrop-filter prefix
+- Build verified: 99 modules, 0 TypeScript errors
 
 ---
 
@@ -477,15 +493,15 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 
 ## Phase 2 Summary
 
-| #                 | Feature          | Time           | Status     |
-| ----------------- | ---------------- | -------------- | ---------- |
-| 2.1               | Glass Morphism   | 1.5h           | ⏳ Pending |
-| 2.2               | Skeleton Screens | 1h             | ⏳ Pending |
-| 2.3               | Read Status      | 45m            | ⏳ Pending |
-| 2.4               | Hover Depth      | 1h             | ⏳ Pending |
-| 2.5               | Unread Badge     | 30m            | ⏳ Pending |
-| 2.6               | Time Grouping    | 45m            | ⏳ Pending |
-| **Total Phase 2** |                  | **~5.5 hours** |            |
+| #                 | Feature          | Time           | Status      |
+| ----------------- | ---------------- | -------------- | ----------- |
+| 2.1               | Glass Morphism   | 1.5h           | ✅ Complete |
+| 2.2               | Skeleton Screens | 1h             | ⏳ Pending  |
+| 2.3               | Read Status      | 45m            | ⏳ Pending  |
+| 2.4               | Hover Depth      | 1h             | ⏳ Pending  |
+| 2.5               | Unread Badge     | 30m            | ⏳ Pending  |
+| 2.6               | Time Grouping    | 45m            | ⏳ Pending  |
+| **Total Phase 2** |                  | **~5.5 hours** | 1/6 Done    |
 
 ---
 
@@ -767,7 +783,7 @@ PHASE 1: Foundation
 [ ] 1.6 Sidebar Conversation Preview
 
 PHASE 2: Polish
-[ ] 2.1 Glass Morphism Effects
+[✅] 2.1 Glass Morphism Effects
 [ ] 2.2 Skeleton Loading Screens
 [ ] 2.3 Read Status Indicators
 [ ] 2.4 Enhanced Hover States
