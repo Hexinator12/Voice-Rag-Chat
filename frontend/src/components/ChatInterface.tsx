@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { SkeletonLoader } from './SkeletonLoader';
 import { TimeGroupDivider } from './TimeGroupDivider';
+import { ConfidenceBar } from './ConfidenceBar';
 import './ChatInterface.css';
 
 export interface Message {
@@ -83,14 +84,6 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
         return message.content;
     };
 
-    const getTrustLevel = (score?: number) => {
-        if (score === undefined) return 'unknown';
-        if (score >= 75) return 'high';
-        if (score >= 50) return 'medium';
-        return 'low';
-    };
-
-    // Get status display info (Phase 2.3)
     const getStatusDisplay = (status?: string) => {
         switch (status) {
             case 'sending':
@@ -247,9 +240,11 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                         {message.type === 'assistant' && (effectiveTrustScore !== undefined || effectiveEvidence.length > 0) && (
                             <div className="trust-evidence-panel">
                                 {effectiveTrustScore !== undefined && (
-                                    <div className={`trust-score-chip ${getTrustLevel(effectiveTrustScore)}`}>
-                                        Answer Confidence: {effectiveTrustScore.toFixed(1)}%
-                                    </div>
+                                    <ConfidenceBar
+                                        score={effectiveTrustScore}
+                                        evidence={effectiveEvidence}
+                                        sources={message.sources}
+                                    />
                                 )}
 
                                 {!!effectiveEvidence.length && (
