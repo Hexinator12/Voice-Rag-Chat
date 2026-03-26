@@ -658,6 +658,29 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 - ✅ Source icons display
 - ✅ Sparkle effect on hover
 
+**Status**: ✅ **COMPLETED** (Commit pending git push, Mar 26 2026)
+
+- Created ConfidenceBar.tsx component with advanced visualization and props interface
+- Animated fill bar that grows from 0 to final value with smooth cubic-bezier timing (0.34, 1.56, 0.64, 1)
+- Color gradient system: red (#ef4444) for low, yellow (#f59e0b) for medium, green (#10b981) for high confidence
+- Added sparkle animation (✨) that floats across the bar with scale and opacity transitions
+- Source type icon detection from metadata: 🔗 (links/webpages), 🎤 (voice/audio), 📄 (documents), 📝 (text/transcripts), 🖼️ (images/visual)
+- Displays up to 3 source type icons in header (deduped from evidence/sources arrays)
+- Smooth bar fill animation (0.8s) with confidence pulse entrance effect
+- Slide-shine gloss overlay effect for premium feel (2.5s infinite animation on bar)
+- Confidence level footer with emoji indicators: 💚 High, 💛 Moderate, ❤️ Lower
+- Header grid shows confidence percentage (0-100%) with color-coded background chip and responsive sizing
+- Glass morphism container styling with 4px backdrop blur, gradient background, subtle shadows
+- Hover state enhancement with increased border opacity and deeper shadow effects
+- Accessibility support: prefers-reduced-motion disables all animations
+- Mobile responsive: adjusted padding (0.6rem vs 0.8rem), reduced font sizes, bar height (24px vs 28px)
+- Replaces old trust-score-chip with dynamic, interactive confidence visualization
+- Pass evidence and sources arrays to component for intelligent source type detection
+- Removed getTrustLevel helper function (logic moved to ConfidenceBar component)
+- Files created: ConfidenceBar.tsx, ConfidenceBar.css
+- Files modified: ChatInterface.tsx (import, replace trust rendering, remove helper)
+- Build verified: 103 modules (+2 new), 0 TypeScript errors, 597ms
+
 ---
 
 ## 3.3 🌙 Dark Mode Toggle
@@ -768,14 +791,14 @@ PHASE 1 (FOUNDATION)     PHASE 2 (POLISH)        PHASE 3 (ENGAGEMENT)
 
 ## Phase 3 Summary
 
-| #                 | Feature                  | Time         | Status     |
-| ----------------- | ------------------------ | ------------ | ---------- |
-| 3.1               | Reactions System         | 1.5h         | ⏳ Pending |
-| 3.2               | Confidence Visualization | 1.5h         | ⏳ Pending |
-| 3.3               | Dark Mode                | 2h           | ⏳ Pending |
-| 3.4               | Keyboard Shortcuts       | 1h           | ⏳ Pending |
-| 3.5               | Swipe Dismiss            | 1h           | ⏳ Pending |
-| **Total Phase 3** |                          | **~7 hours** |            |
+| #                 | Feature                  | Time         | Status      |
+| ----------------- | ------------------------ | ------------ | ----------- |
+| 3.1               | Reactions System         | 1.5h         | ⏳ Pending  |
+| 3.2               | Confidence Visualization | 1.5h         | ✅ Complete |
+| 3.3               | Dark Mode                | 2h           | ⏳ Pending  |
+| 3.4               | Keyboard Shortcuts       | 1h           | ⏳ Pending  |
+| 3.5               | Swipe Dismiss            | 1h           | ⏳ Pending  |
+| **Total Phase 3** |                          | **~7 hours** | 1/5 Done    |
 
 ---
 
