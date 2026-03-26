@@ -3,6 +3,7 @@ import { ChatInterface, Message } from './components/ChatInterface';
 import { TextInput } from './components/TextInput';
 import { VoiceInput } from './components/VoiceInput';
 import { ConversationSidebar } from './components/ConversationSidebar';
+import { ThemeToggle } from './components/ThemeToggle';
 import { apiService, Language, API_BASE_URL, QueryResponse } from './services/api';
 import { stopSpeaking } from './utils/speech';
 import { useConversations } from './hooks/useConversations';
@@ -603,6 +604,8 @@ function App() {
                                     ))}
                                 </select>
                             </div>
+
+                            <ThemeToggle />
                         </div>
                     </div>
                 </header>
