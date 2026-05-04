@@ -17,6 +17,7 @@ import hmac
 import hashlib
 import sqlite3
 import threading
+import requests
 from datetime import datetime, timezone
 from pathlib import Path
 from dotenv import load_dotenv
@@ -46,6 +47,7 @@ allowed_origins = [
     "http://localhost:5173",
     "http://localhost:3000",
     "https://voicerag-frontend.onrender.com",
+    "https://voice-rag-frontend.onrender.com",
     "https://voice-rag.onrender.com",
 ]
 
@@ -76,6 +78,8 @@ SESSION_TTL_SECONDS = 60 * 60 * 24 * 180  # 180 days
 SESSION_DB_PATH = Path("chat_sessions.db")
 SESSION_SIGNING_KEY = os.getenv("SESSION_SIGNING_KEY", "dev-insecure-change-me")
 IS_PRODUCTION = os.getenv("RENDER", "").lower() == "true" or os.getenv("ENV", "").lower() == "production"
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "").strip()
 
 if SESSION_SIGNING_KEY == "dev-insecure-change-me":
     print("⚠️ SESSION_SIGNING_KEY not set. Set it in production for secure signed cookies.")
@@ -255,6 +259,76 @@ class ChatSessionStore:
 chat_session_store = ChatSessionStore(SESSION_DB_PATH)
 
 
+# Lightweight user profile store for Google-authenticated users
+def _init_user_profile_table() -> None:
+    with sqlite3.connect(SESSION_DB_PATH, check_same_thread=False) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_profiles (
+                user_id TEXT PRIMARY KEY,
+                email TEXT,
+                name TEXT,
+                picture TEXT,
+                role TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        # Backfill role column for existing tables if missing
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(user_profiles)").fetchall()}
+        if "role" not in cols:
+            conn.execute("ALTER TABLE user_profiles ADD COLUMN role TEXT")
+        conn.commit()
+
+
+def _upsert_user_profile(
+    user_id: str,
+    email: Optional[str],
+    name: Optional[str],
+    picture: Optional[str],
+    role: Optional[str] = None,
+) -> None:
+    now = _utc_now_iso()
+    with sqlite3.connect(SESSION_DB_PATH, check_same_thread=False) as conn:
+        conn.execute(
+            """
+            INSERT INTO user_profiles (user_id, email, name, picture, role, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                email=excluded.email,
+                name=excluded.name,
+                picture=excluded.picture,
+                role=COALESCE(excluded.role, user_profiles.role),
+                updated_at=excluded.updated_at
+            """,
+            (user_id, email, name, picture, role, now, now),
+        )
+        conn.commit()
+
+
+def _get_user_profile(user_id: str) -> Optional[Dict[str, Any]]:
+    with sqlite3.connect(SESSION_DB_PATH, check_same_thread=False) as conn:
+        row = conn.execute(
+            "SELECT user_id, email, name, picture, role, created_at, updated_at FROM user_profiles WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+        if not row:
+            return None
+        return {
+            "user_id": row[0],
+            "email": row[1],
+            "name": row[2],
+            "picture": row[3],
+            "role": row[4],
+            "created_at": row[5],
+            "updated_at": row[6],
+        }
+
+
+_init_user_profile_table()
+
+
 # Pydantic models
 class TextQuery(BaseModel):
     question: str
@@ -289,6 +363,15 @@ class VoiceQueryResponse(BaseModel):
     evidence: Optional[List[Dict[str, Any]]] = None
 
 
+class GoogleAuthRequest(BaseModel):
+    id_token: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    role: Optional[str] = None
+    name: Optional[str] = None
+
+
 class TTSRequest(BaseModel):
     text: str
     language: Optional[str] = "English"
@@ -303,6 +386,91 @@ class FeedbackRequest(BaseModel):
     session_id: Optional[str] = None
     category: Optional[str] = None
     comment: Optional[str] = None
+
+
+@app.post("/api/auth/firebase")
+async def firebase_auth(payload: GoogleAuthRequest, response: Response):
+    if not payload.id_token:
+        raise HTTPException(status_code=400, detail="id_token is required")
+
+    try:
+        token_info_resp = requests.get(
+            "https://oauth2.googleapis.com/tokeninfo",
+            params={"id_token": payload.id_token},
+            timeout=5,
+        )
+    except requests.RequestException:
+        raise HTTPException(status_code=503, detail="Failed to verify Firebase token")
+
+    if token_info_resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid Firebase token")
+
+    token_info = token_info_resp.json()
+    audience = token_info.get("aud")
+    if FIREBASE_PROJECT_ID and audience != FIREBASE_PROJECT_ID:
+        raise HTTPException(status_code=401, detail="Token audience mismatch")
+
+    user_id = token_info.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+
+    email = token_info.get("email")
+    name = token_info.get("name") or email or "Firebase User"
+    picture = token_info.get("picture")
+
+    signed_token = _sign_user_id(user_id)
+    _attach_user_cookie(response, signed_token)
+    _upsert_user_profile(user_id, email, name, picture)
+    profile = _get_user_profile(user_id)
+
+    return {
+        "user_id": user_id,
+        "email": email,
+        "name": name,
+        "picture": picture,
+        "role": profile.get("role") if profile else None,
+    }
+
+
+@app.get("/api/auth/me")
+async def auth_me(request: Request):
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    user_id = _verify_user_token(token) if token else None
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    profile = _get_user_profile(user_id) or {}
+    return {"user_id": user_id, **profile}
+
+
+@app.post("/api/profile")
+async def update_profile(update: ProfileUpdateRequest, request: Request, response: Response):
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    user_id = _verify_user_token(token) if token else None
+
+    # If no valid session cookie, create one so users can save profile after logging via Firebase
+    # or even in anonymous mode.
+    if not user_id:
+        user_id, signed_token = _get_or_create_user_identity(request)
+        _attach_user_cookie(response, signed_token)
+
+    existing = _get_user_profile(user_id)
+    name = update.name if update.name is not None else (existing.get("name") if existing else None)
+    role = update.role if update.role is not None else (existing.get("role") if existing else None)
+    email = existing.get("email") if existing else None
+    picture = existing.get("picture") if existing else None
+
+    _upsert_user_profile(user_id, email, name, picture, role)
+    return {"user_id": user_id, "email": email, "name": name, "picture": picture, "role": role}
+
+
+@app.post("/api/auth/logout")
+async def auth_logout(response: Response):
+    response.delete_cookie(
+        key=SESSION_COOKIE_NAME,
+        path="/",
+    )
+    return {"ok": True}
 
 
 class SessionClearRequest(BaseModel):
