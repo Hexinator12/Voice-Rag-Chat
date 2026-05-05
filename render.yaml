@@ -6,7 +6,12 @@ services:
     region: oregon
     plan: free
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: >
+      pip install -r requirements.txt &&
+      fallocate -l 512M /swapfile &&
+      chmod 600 /swapfile &&
+      mkswap /swapfile &&
+      swapon /swapfile
     startCommand: >
       sh -c "echo [startup] PORT=$PORT &&
       exec python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-10000} --log-level info"
