@@ -1395,5 +1395,54 @@
       "who teaches",
       "Alok Behera"
     ]
+  },
+  {
+    "id": "btech_aiml_identity",
+    "content": "B.Tech Artificial Intelligence and Machine Learning (AIML) is a 4-year program offered by UIT, Karnavati University. The program focuses on machine learning algorithms, artificial intelligence, deep learning, computer vision, and data science. Eligibility requires 10+2 with Physics, Chemistry, and Mathematics. Selection is based on JEE MAINS 2025 or GUJCET 2025 followed by personal interview.",
+    "category": "program_identity",
+    "program": "B.Tech AIML",
+    "keywords": ["B.Tech AIML", "AI and Machine Learning", "program", "eligibility", "4-year", "undergraduate"]
+  },
+  {
+    "id": "btech_aiml_focus",
+    "content": "AIML curriculum covers machine learning algorithms, deep learning frameworks (TensorFlow, PyTorch), Python programming, data analysis with NumPy and Pandas, computer vision, natural language processing, reinforcement learning, neural networks, artificial intelligence fundamentals, statistics and probability, and practical AI/ML projects.",
+    "category": "specialization_focus",
+    "program": "B.Tech AIML",
+    "keywords": ["curriculum", "AIML", "machine learning", "deep learning", "neural networks", "computer vision", "NLP", "artificial intelligence"]
+  },
+  {
+    "id": "btech_aiml_pso",
+    "content": "Programme Specific Outcomes for AIML: PSO1-Develop machine learning models using contemporary frameworks and techniques to solve real-world AI problems. PSO2-Apply deep learning and neural network architectures for computer vision and natural language processing tasks. PSO3-Conduct research and development of innovative AI solutions through hands-on projects and industry internships.",
+    "category": "programme_specific_outcomes",
+    "program": "B.Tech AIML",
+    "keywords": ["AIML", "outcomes", "machine learning", "deep learning", "computer vision", "NLP", "research"]
+  },
+  {
+    "id": "btech_aiml_careers",
+    "content": "AIML graduates can work as Machine Learning Engineer, Data Scientist, AI Engineer, Computer Vision Specialist, NLP Engineer, Deep Learning Developer, AI Research Scientist, Business Intelligence Analyst, or Robotics Programmer.",
+    "category": "career_roles",
+    "program": "B.Tech AIML",
+    "keywords": ["AIML", "careers", "machine learning engineer", "data scientist", "AI engineer", "computer vision", "NLP engineer"]
+  },
+  {
+    "id": "btech_aiml_industries",
+    "content": "AIML graduates find opportunities in Technology Companies (Google, Microsoft, Amazon, IBM), Financial Services, Healthcare Technology, E-commerce platforms, Autonomous Vehicles, Robotics, Research and Development centers, Government AI initiatives, and Startups focused on AI solutions.",
+    "category": "career_industries",
+    "program": "B.Tech AIML",
+    "keywords": ["AIML", "industries", "tech companies", "finance", "healthcare", "e-commerce", "autonomous vehicles", "AI"]
+  },
+  {
+    "id": "btech_aiml_vs_cse_curriculum",
+    "content": "Key curriculum differences between B.Tech AIML and B.Tech CSE: AIML focuses primarily on machine learning, artificial intelligence, deep learning, and data science with specialized courses in neural networks, computer vision, and NLP. CSE provides broader coverage including software engineering, databases, networks, web development, and cloud computing. Both share foundational courses in programming languages, data structures, and algorithms, but AIML has more specialized AI/ML electives while CSE has more system-level and software engineering courses.",
+    "category": "academic_comparison",
+    "program": "B.Tech AIML",
+    "keywords": ["AIML vs CSE", "curriculum comparison", "differences", "machine learning focus", "software engineering", "specialization"]
+  },
+  {
+    "id": "btech_cse_identity",
+    "content": "B.Tech Computer Science and Engineering (CSE) is a 4-year program at UIT focusing on software development, programming, algorithms, databases, operating systems, computer networks, and web technologies. The program prepares students for careers in software development, system design, and IT infrastructure management.",
+    "category": "program_identity",
+    "program": "B.Tech CSE",
+    "keywords": ["B.Tech CSE", "Computer Science", "software engineering", "4-year", "programming"]
   }
 ]

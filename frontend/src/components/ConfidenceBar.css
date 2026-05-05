@@ -215,6 +215,87 @@
     color: #ef4444;
 }
 
+.confidence-explainer {
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #4b5563;
+}
+
+.confidence-explainer details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #1f2937;
+    outline: none;
+}
+
+.confidence-explainer details[open] summary {
+    color: #111827;
+}
+
+.confidence-explainer ul {
+    margin: 0.35rem 0 0 1rem;
+    padding: 0;
+    line-height: 1.35;
+}
+
+.confidence-chip {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.confidence-low-context {
+    margin-top: 0.5rem;
+    background: rgba(255, 237, 213, 0.4);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 10px;
+    padding: 0.65rem 0.8rem;
+    color: #92400e;
+}
+
+.low-reason-title {
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.confidence-low-context ul {
+    margin: 0.2rem 0 0.5rem 1.1rem;
+    padding: 0;
+    line-height: 1.35;
+}
+
+.confidence-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.action-chip {
+    background: rgba(59, 130, 246, 0.08);
+    color: #1d4ed8;
+    border: 1px dashed rgba(59, 130, 246, 0.25);
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: default;
+}
+
+.action-chip:hover {
+    background: rgba(59, 130, 246, 0.12);
+}
+
 /* Backdrop reference element */
 
 .confidence-backdrop {

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { SkeletonLoader } from './SkeletonLoader';
 import { TimeGroupDivider } from './TimeGroupDivider';
-import { ConfidenceBar } from './ConfidenceBar';
 import './ChatInterface.css';
 
 export interface Message {
@@ -102,29 +101,11 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
     const buildFallbackEvidence = (message: Message) => {
         const sources = message.sources || [];
         if (sources.length === 0) {
-            return { trustScore: undefined as number | undefined, evidence: [] as NonNullable<Message['evidence']> };
+            return { evidence: [] as NonNullable<Message['evidence']> };
         }
 
         const top = sources.slice(0, 3);
         const confidences = top.map((s) => Math.max(0, Math.min(1, Number(s.distance || 0))));
-        const topConfidence = confidences[0];
-        const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
-
-        const answerTokens = new Set((message.content || '').toLowerCase().split(/\W+/).filter(Boolean));
-        const contextTokens = new Set(
-            top
-                .map((s) => (s.content || '').toLowerCase())
-                .join(' ')
-                .split(/\W+/)
-                .filter(Boolean)
-        );
-        const coverage =
-            answerTokens.size > 0 && contextTokens.size > 0
-                ? [...answerTokens].filter((t) => contextTokens.has(t)).length / answerTokens.size
-                : 0;
-
-        const agreement = confidences.filter((c) => c >= 0.6).length / confidences.length;
-
         const evidence = top.map((s, idx) => ({
             rank: idx + 1,
             score: Number((confidences[idx] * 100).toFixed(2)),
@@ -133,10 +114,7 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
             metadata: s.metadata || {},
         }));
 
-        const trustScore = Number(
-            ((0.55 * topConfidence + 0.25 * avgConfidence + 0.15 * coverage + 0.05 * agreement) * 100).toFixed(2)
-        );
-        return { trustScore, evidence };
+        return { evidence };
     };
 
     const shouldShowProcessing =
@@ -178,7 +156,6 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                 // Render regular message
                 const message = item as Message;
                 const fallback = buildFallbackEvidence(message);
-                const effectiveTrustScore = message.trustScore ?? fallback.trustScore;
                 const effectiveEvidence = (message.evidence && message.evidence.length > 0) ? message.evidence : fallback.evidence;
                 const strongEvidence = effectiveEvidence.filter((item) => item.score >= 20);
                 const weakEvidence = effectiveEvidence.filter((item) => item.score < 20);
@@ -237,53 +214,43 @@ export function ChatInterface({ messages, isProcessing }: ChatInterfaceProps) {
                             </div>
                         )}
 
-                        {message.type === 'assistant' && (effectiveTrustScore !== undefined || effectiveEvidence.length > 0) && (
+                        {message.type === 'assistant' && effectiveEvidence.length > 0 && (
                             <div className="trust-evidence-panel">
-                                {effectiveTrustScore !== undefined && (
-                                    <ConfidenceBar
-                                        score={effectiveTrustScore}
-                                        evidence={effectiveEvidence}
-                                        sources={message.sources}
-                                    />
-                                )}
-
-                                {!!effectiveEvidence.length && (
-                                    <details className="evidence-details">
-                                        <summary>View Evidence ({strongEvidence.length})</summary>
-                                        <div className="evidence-list">
-                                            <div className="evidence-summary">
-                                                {strongEvidence.length} strong source{strongEvidence.length === 1 ? '' : 's'}, {weakEvidence.length} weak source{weakEvidence.length === 1 ? '' : 's'}
-                                            </div>
-
-                                            {strongEvidence.map((item) => (
-                                                <div key={`${message.id}-ev-${item.rank}`} className="evidence-item">
-                                                    <div className="evidence-meta">
-                                                        <span>#{item.rank}</span>
-                                                        <span>{item.score.toFixed(1)}%</span>
-                                                    </div>
-                                                    <p>{item.snippet}</p>
-                                                </div>
-                                            ))}
-
-                                            {!!weakEvidence.length && (
-                                                <details className="weak-evidence-details">
-                                                    <summary>Weak Context ({weakEvidence.length})</summary>
-                                                    <div className="weak-evidence-list">
-                                                        {weakEvidence.map((item) => (
-                                                            <div key={`${message.id}-weak-${item.rank}`} className="evidence-item weak">
-                                                                <div className="evidence-meta">
-                                                                    <span>#{item.rank}</span>
-                                                                    <span>{item.score.toFixed(1)}%</span>
-                                                                </div>
-                                                                <p>{item.snippet}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </details>
-                                            )}
+                                <details className="evidence-details">
+                                    <summary>View Evidence ({strongEvidence.length})</summary>
+                                    <div className="evidence-list">
+                                        <div className="evidence-summary">
+                                            {strongEvidence.length} strong source{strongEvidence.length === 1 ? '' : 's'}, {weakEvidence.length} weak source{weakEvidence.length === 1 ? '' : 's'}
                                         </div>
-                                    </details>
-                                )}
+
+                                        {strongEvidence.map((item) => (
+                                            <div key={`${message.id}-ev-${item.rank}`} className="evidence-item">
+                                                <div className="evidence-meta">
+                                                    <span>#{item.rank}</span>
+                                                    <span>{item.score.toFixed(1)}%</span>
+                                                </div>
+                                                <p>{item.snippet}</p>
+                                            </div>
+                                        ))}
+
+                                        {!!weakEvidence.length && (
+                                            <details className="weak-evidence-details">
+                                                <summary>Weak Context ({weakEvidence.length})</summary>
+                                                <div className="weak-evidence-list">
+                                                    {weakEvidence.map((item) => (
+                                                        <div key={`${message.id}-weak-${item.rank}`} className="evidence-item weak">
+                                                            <div className="evidence-meta">
+                                                                <span>#{item.rank}</span>
+                                                                <span>{item.score.toFixed(1)}%</span>
+                                                            </div>
+                                                            <p>{item.snippet}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </details>
+                                        )}
+                                    </div>
+                                </details>
                             </div>
                         )}
 

@@ -112,6 +112,8 @@ api.interceptors.response.use(
     }
 );
 
+export type UserProfile = { user_id: string; email?: string; name?: string; picture?: string; role?: string | null };
+
 export const apiService = {
     async textQuery(
         question: string,
@@ -194,6 +196,25 @@ export const apiService = {
 
     async healthCheck(): Promise<{ status: string }> {
         const response = await api.get<{ status: string }>('/api/health');
+        return response.data;
+    },
+
+    async firebaseSignIn(idToken: string): Promise<UserProfile> {
+        const response = await api.post<UserProfile>('/api/auth/firebase', { id_token: idToken });
+        return response.data;
+    },
+
+    async getCurrentUser(): Promise<UserProfile> {
+        const response = await api.get<UserProfile>('/api/auth/me');
+        return response.data;
+    },
+
+    async logout(): Promise<void> {
+        await api.post('/api/auth/logout');
+    },
+
+    async updateProfile(payload: { role?: string; name?: string }): Promise<UserProfile> {
+        const response = await api.post<UserProfile>('/api/profile', payload);
         return response.data;
     },
 

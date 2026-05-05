@@ -74,6 +74,21 @@ export function ConfidenceBar({ score, evidence, sources }: ConfidenceBarProps) 
     const confidenceLevel = getConfidenceLevel(score);
     const clampedScore = Math.max(0, Math.min(100, score));
 
+    const strongEvidenceCount = (evidence || []).filter((item) => item.score >= 50).length;
+    const totalEvidenceCount = evidence?.length || 0;
+    const hasFewSources = totalEvidenceCount <= 1;
+    const reasons: string[] = [];
+    if (confidenceLevel === 'low') {
+        if (hasFewSources) reasons.push('Only a small number of sources were retrieved.');
+        if (strongEvidenceCount === 0) reasons.push('Supporting sources are weak or low-similarity.');
+        if (sources && sources.length > 0 && strongEvidenceCount < totalEvidenceCount) {
+            reasons.push('Sources do not strongly agree with the answer.');
+        }
+        if (reasons.length === 0) {
+            reasons.push('Score is conservative until stronger evidence is found.');
+        }
+    }
+
     return (
         <div className="confidence-bar-container">
             <div className="confidence-header">
@@ -113,6 +128,34 @@ export function ConfidenceBar({ score, evidence, sources }: ConfidenceBarProps) 
                     {confidenceLevel === 'low' && '❤️ Lower confidence'}
                 </span>
             </div>
+
+            <div className="confidence-explainer">
+                <span className="confidence-chip">Per-answer estimate</span>
+                <details>
+                    <summary>How this confidence works</summary>
+                    <ul>
+                        <li>Calibrated for this specific answer; benchmark accuracy (95% target) is measured on separate eval sets.</li>
+                        <li>Factors: source strength, content overlap with the answer, and agreement across top sources.</li>
+                        <li>Scores are conservative by design, so 100% should be rare; new evidence can raise or lower it.</li>
+                    </ul>
+                </details>
+            </div>
+
+            {confidenceLevel === 'low' && (
+                <div className="confidence-low-context">
+                    <div className="low-reason-title">Why low?</div>
+                    <ul>
+                        {reasons.map((reason, idx) => (
+                            <li key={idx}>{reason}</li>
+                        ))}
+                    </ul>
+                    <div className="confidence-actions">
+                        <span className="action-chip">Rephrase with more context</span>
+                        <span className="action-chip">Ask for more sources</span>
+                        <span className="action-chip">Flag for faculty review</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
